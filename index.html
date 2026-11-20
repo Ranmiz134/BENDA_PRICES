@@ -2,187 +2,838 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מחירון DJI מלא - אילת</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>מחירון חנות הרצליה</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f7; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #1a1a1a; margin-bottom: 20px; }
-        .search-box { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 20px; box-sizing: border-box; transition: border-color 0.3s; }
-        .search-box:focus { outline: none; border-color: #007aff; }
-        .product-list { list-style: none; padding: 0; margin: 0; }
-        .product-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; transition: background-color 0.2s; }
-        .product-item:hover { background-color: #f9f9f9; }
-        .product-name { font-size: 16px; font-weight: 500; }
-        .product-price { font-size: 18px; font-weight: bold; color: #007aff; background: #e6f2ff; padding: 6px 12px; border-radius: 6px; }
-        .product-price.sale { color: #e53935; background: #ffebee; }
-        .no-results { text-align: center; padding: 20px; color: #888; font-style: italic; display: none; }
+        :root {
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --text: #1a1f2c;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #0066ff;
+            --primary-soft: #e8f1ff;
+            --red: #d92d20;
+            --red-soft: #fef3f2;
+            --green: #067647;
+            --green-soft: #ecfdf3;
+            --green-border: #abefc6;
+            --amber: #b54708;
+            --amber-soft: #fffaeb;
+            --gray-badge: #475467;
+            --gray-badge-bg: #f2f4f7;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0 0 40px 0;
+            color: var(--text);
+            line-height: 1.4;
+        }
+        .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            padding: 18px 16px 14px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+        .header-meta {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #cbd5e1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .header-pill {
+            background: rgba(255,255,255,0.12);
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+        .sticky-controls {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(244, 246, 249, 0.96);
+            backdrop-filter: blur(8px);
+            padding: 12px 14px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .container {
+            max-width: 880px;
+            margin: 0 auto;
+        }
+        .search-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+        .search-wrap {
+            position: relative;
+            flex: 1;
+        }
+        .search-box {
+            width: 100%;
+            padding: 13px 14px 13px 40px;
+            font-size: 16px;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            background: #fff;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.14);
+        }
+        .clear-btn {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: #e2e8f0;
+            color: #475569;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            font-size: 15px;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .clear-btn.visible { display: flex; }
+        .scan-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 0 16px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0, 102, 255, 0.25);
+            transition: background 0.15s, transform 0.1s;
+        }
+        .scan-btn:active { transform: scale(0.97); }
+        .scan-btn:hover { background: #0052cc; }
+        .scan-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+        .filters-bar {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 10px 0 2px;
+            scrollbar-width: none;
+        }
+        .filters-bar::-webkit-scrollbar { display: none; }
+        .filter-chip {
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #334155;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .filter-chip.active {
+            background: #0f172a;
+            color: #fff;
+            border-color: #0f172a;
+        }
+        .filter-chip.active-promo-chip.active {
+            background: var(--green);
+            border-color: var(--green);
+            color: #fff;
+        }
+
+        .status-bar {
+            max-width: 880px;
+            margin: 10px auto 6px;
+            padding: 0 16px;
+            font-size: 13px;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-list {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 0 14px;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .product-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+        .product-card.is-out {
+            opacity: 0.72;
+            background: #fafafa;
+        }
+        .info-col {
+            flex: 1;
+            min-width: 0;
+        }
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        .tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .tag-cat { background: var(--gray-badge-bg); color: var(--gray-badge); }
+        .tag-out { background: #fee2e2; color: #b91c1c; }
+        .tag-low { background: var(--amber-soft); color: var(--amber); border: 1px solid #fedf89; }
+        .tag-gift { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+        .tag-note { background: #eff6ff; color: #1d4ed8; }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+        .codes-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12.5px;
+            color: var(--muted);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            direction: ltr;
+            justify-content: flex-end;
+        }
+        .code-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1px 7px;
+            border-radius: 5px;
+            user-select: all;
+        }
+        .code-lbl {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            color: #94a3b8;
+            font-size: 11px;
+            margin-right: 4px;
+        }
+
+        .price-col {
+            text-align: left;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            min-width: 125px;
+        }
+        .reg-price-wrap {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+        .reg-label {
+            font-size: 11px;
+            color: var(--muted);
+        }
+        .reg-price {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--primary-soft);
+            color: #0b4db8;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+        .reg-price.eol {
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .regular-sale-line {
+            font-size: 12px;
+            color: #475569;
+            font-weight: 500;
+        }
+        .promo-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            margin-top: 2px;
+        }
+        .promo-line {
+            font-size: 12.5px;
+            color: var(--red);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .promo-price-num {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: var(--red);
+        }
+        .promo-dates {
+            font-size: 11.5px;
+            color: var(--red);
+            font-weight: 500;
+            opacity: 0.92;
+        }
+        .active-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--green);
+            background: var(--green-soft);
+            border: 1px solid var(--green-border);
+            padding: 2px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .active-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #12b76a;
+            display: inline-block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+            display: none;
+        }
+        .empty-state strong {
+            display: block;
+            color: var(--text);
+            font-size: 17px;
+            margin-bottom: 6px;
+        }
+
+        /* Scanner Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.82);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 440px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-head h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+        .modal-close {
+            border: none;
+            background: #f1f5f9;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            color: #334155;
+        }
+        .modal-body {
+            padding: 14px;
+            text-align: center;
+        }
+        #reader {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            min-height: 240px;
+        }
+        .scanner-msg {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .scanner-err {
+            color: var(--red);
+            background: var(--red-soft);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        @media (max-width: 560px) {
+            .product-card {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .price-col {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                border-top: 1px dashed var(--border);
+                padding-top: 10px;
+                width: 100%;
+            }
+            .promo-block {
+                align-items: flex-end;
+            }
+            .codes-row {
+                justify-content: flex-end;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>חיפוש מחירון אילת - כל המוצרים</h1>
-    <input type="text" id="searchInput" class="search-box" placeholder="חפש דגם או אביזר (למשל: סוללה, תיק, Mini 4)..." onkeyup="filterProducts()">
-    <ul class="product-list" id="productList">
-        <li class="product-item"><span class="product-name">כרטיס SanDisk Extreme Pro microSD 250S 128G</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">סוללה למשקף DJI AVATA 1 GOGGLES 2</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">תיק קל למגוון רחפני DJI</span><span class="product-price">₪126</span></li>
-        <li class="product-item"><span class="product-name">תיק שקוף לרחפן DJI NEO</span><span class="product-price">₪84</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI OSMO MOBILE 6</span><span class="product-price">₪592</span></li>
-        <li class="product-item"><span class="product-name">כבל קשירה גלשן ACTION 3 DJI</span><span class="product-price">₪84</span></li>
-        <li class="product-item"><span class="product-name">ערכת חזה ACTION 3 DJI</span><span class="product-price">₪152</span></li>
-        <li class="product-item"><span class="product-name">מעמד כדורי ACTION 3 DJI</span><span class="product-price">₪109</span></li>
-        <li class="product-item"><span class="product-name">ערכת בסיס מעמד ACTION 3 DJI</span><span class="product-price">₪67</span></li>
-        <li class="product-item"><span class="product-name">ערכת טעינה ל 3 סוללות ACTION 3 DJI</span><span class="product-price">₪143</span></li>
-        <li class="product-item"><span class="product-name">סוללה לרחפן מיני PLUS 3</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">ערכת קומבו GOGGLES 2 ושלט MOTION 2</span><span class="product-price">₪1,694</span></li>
-        <li class="product-item"><span class="product-name">ערכת קומבו GOGGLES INTEGRA ושלט MOTION 2</span><span class="product-price">₪847</span></li>
-        <li class="product-item"><span class="product-name">רחפן מיני שלט חכם MINI 4 קומבו PLUS DJI</span><span class="product-price">₪3,389</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI OSMO POCKET 3 קומבו</span><span class="product-price">₪1,821</span></li>
-        <li class="product-item"><span class="product-name">סוללה ל OSMO POCKET 3</span><span class="product-price">₪219</span></li>
-        <li class="product-item"><span class="product-name">סט פילטרים ND ל OSMO POCKET 3</span><span class="product-price">₪219</span></li>
-        <li class="product-item"><span class="product-name">רחפן DJI AVATA 2 FLY MORE COMBO 1 BATTERY</span><span class="product-price">₪3,389</span></li>
-        <li class="product-item"><span class="product-name">רחפן DJI AVATA 2 FLY MORE COMBO 3 BATTERY</span><span class="product-price">₪3,686</span></li>
-        <li class="product-item"><span class="product-name">מטען/רכזת DJI AVATA 2 CHARGING HUB</span><span class="product-price">₪423</span></li>
-        <li class="product-item"><span class="product-name">סוללה DJI AVATA 2 INTELLEGENT FLIGHT BATTERY</span><span class="product-price">₪592</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI RONIN RS4</span><span class="product-price">₪1,440</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI RONIN RS4 COMBO</span><span class="product-price">₪2,203</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI RONIN RS4 PRO COMBO</span><span class="product-price">₪3,558</span></li>
-        <li class="product-item"><span class="product-name">Neo (רחפן בלבד)</span><span class="product-price sale">₪399 (מבצע!)</span></li>
-        <li class="product-item"><span class="product-name">רחפן DJI NEO FLY MORE COMBO</span><span class="product-price">₪1,313</span></li>
-        <li class="product-item"><span class="product-name">מצלמת DJI ACTION 5 STANDARD COMBO</span><span class="product-price">₪1,101</span></li>
-        <li class="product-item"><span class="product-name">רכזת טעינה לסוללות DJI NEO</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">סוללה DJI NEO INTELLEGENT FLIGHT BATTERY</span><span class="product-price">₪253</span></li>
-        <li class="product-item"><span class="product-name">סוללה לרחפן AIR 3S</span><span class="product-price">₪592</span></li>
-        <li class="product-item"><span class="product-name">שלט רגיל RC N3 ל NEO</span><span class="product-price">₪465</span></li>
-        <li class="product-item"><span class="product-name">שלט חכם RC 2 ל MINI 4/NEO</span><span class="product-price">₪1,482</span></li>
-        <li class="product-item"><span class="product-name">מתאם LIGHTINING למיקרופון אלחוטי DJI MINI</span><span class="product-price">₪67</span></li>
-        <li class="product-item"><span class="product-name">מתאם מיק DJI 2 למצלמות MIC 2 CAMERA ADAPTER</span><span class="product-price">₪135</span></li>
-        <li class="product-item"><span class="product-name">OSMO ACTION MULTIFUNCTIONAL CHARGING HANDLE</span><span class="product-price">₪355</span></li>
-        <li class="product-item"><span class="product-name">OSMO ACTION GPS BLUETOOTH REMOTE CONTROLLER</span><span class="product-price">₪279</span></li>
-        <li class="product-item"><span class="product-name">OSMO ACTION FLOATING CASE</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">OSMO ACTION 3.5MM AUDIO ADAPTER</span><span class="product-price">₪211</span></li>
-        <li class="product-item"><span class="product-name">OSMO ACTION COLD SHOE EXPANSION KIT</span><span class="product-price">₪126</span></li>
-        <li class="product-item"><span class="product-name">יחידת AIR UNIT O4 PRO DJI</span><span class="product-price">₪1,143</span></li>
-        <li class="product-item"><span class="product-name">מייצב OSMO MOBILE 7</span><span class="product-price">₪279</span></li>
-        <li class="product-item"><span class="product-name">מייצב OSMO MOBILE 7P</span><span class="product-price">₪364</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI RS 4 Mini Combo</span><span class="product-price">₪1,313</span></li>
-        <li class="product-item"><span class="product-name">יחידת AIR UNIT O4 DJI</span><span class="product-price">₪508</span></li>
-        <li class="product-item"><span class="product-name">רחפן מאוויק MAVIC 4 PRO RC</span><span class="product-price">₪7,881</span></li>
-        <li class="product-item"><span class="product-name">רחפן מאוויק MAVIC 4 PRO RC קומבו</span><span class="product-price">₪10,169</span></li>
-        <li class="product-item"><span class="product-name">רחפן מאוויק MAVIC 4 PRO RC CREATOR קומבו – 512GB</span><span class="product-price">₪13,558</span></li>
-        <li class="product-item"><span class="product-name">Osmo 360 Standard Combo</span><span class="product-price sale">₪999 (מבצע!)</span></li>
-        <li class="product-item"><span class="product-name">רחפן באנדל DJI AVATA 2 + INTEGRA GOOGLE+MOTION 2</span><span class="product-price">₪2,542</span></li>
-        <li class="product-item"><span class="product-name">מצלמת OSMO 360 ADVANTURE Combo</span><span class="product-price">₪1,991</span></li>
-        <li class="product-item"><span class="product-name">Mic 3 בודד (מקלט + משדר)</span><span class="product-price sale">₪199 (מבצע!)</span></li>
-        <li class="product-item"><span class="product-name">מיקרופון אלחוטי DJI 3 זוגי</span><span class="product-price">₪1,101</span></li>
-        <li class="product-item"><span class="product-name">משדר מיקרופון אלחוטי DJI 3</span><span class="product-price">₪592</span></li>
-        <li class="product-item"><span class="product-name">סט 4 פילטרים ל MINI 4 DJI</span><span class="product-price">₪211</span></li>
-        <li class="product-item"><span class="product-name">רכזת טעינה MAVIC 4 DJI</span><span class="product-price">₪381</span></li>
-        <li class="product-item"><span class="product-name">סוללה לרחפן MAVIC 4 DJI</span><span class="product-price">₪762</span></li>
-        <li class="product-item"><span class="product-name">מארז עמיד למים ACTION 5 DJI</span><span class="product-price">₪253</span></li>
-        <li class="product-item"><span class="product-name">DJI MIC 3 MOBILE LIGHTNING PHONE ADAPTER</span><span class="product-price">₪75</span></li>
-        <li class="product-item"><span class="product-name">OSMO SELFIE STICK CLIP MOUNT DJI</span><span class="product-price">₪75</span></li>
-        <li class="product-item"><span class="product-name">OSMO 360 CARRY BAG DJI</span><span class="product-price">₪126</span></li>
-        <li class="product-item"><span class="product-name">OSMO BIKE REAR MOUNT KIT DJI</span><span class="product-price">₪270</span></li>
-        <li class="product-item"><span class="product-name">OSMO VORTEX ROTATING HANDLE DJI</span><span class="product-price">₪152</span></li>
-        <li class="product-item"><span class="product-name">מצלמת DJI OSMO NANO 64GB</span><span class="product-price">₪1,016</span></li>
-        <li class="product-item"><span class="product-name">רחפן מיני שלט חכם MINI 5 PRO קומבו PLUS DJI</span><span class="product-price">₪4,067</span></li>
-        <li class="product-item"><span class="product-name">רחפן מיני שלט חכם MINI 5 PRO קומבו DJI</span><span class="product-price">₪3,813</span></li>
-        <li class="product-item"><span class="product-name">Mini 5 Pro (גוף בלבד)</span><span class="product-price sale">₪1,999 (מבצע!)</span></li>
-        <li class="product-item"><span class="product-name">מייצב OSMO MOBILE 8</span><span class="product-price">₪508</span></li>
-        <li class="product-item"><span class="product-name">רחפן DJI NEO 2 MOTION FLY MORE COMBO</span><span class="product-price">₪2,203</span></li>
-        <li class="product-item"><span class="product-name">רחפן DJI NEO 2 FLY MORE COMBO</span><span class="product-price">₪1,609</span></li>
-        <li class="product-item"><span class="product-name">רחפן (DRONE ONLY)DJI NEO 2 FLY MORE COMBO</span><span class="product-price">₪1,228</span></li>
-        <li class="product-item"><span class="product-name">מצלמת DJI ACTION 6 ADVENTURE COMBO</span><span class="product-price">₪1,652</span></li>
-        <li class="product-item"><span class="product-name">מצלמת DJI ACTION 6 STANDARD COMBO</span><span class="product-price">₪1,313</span></li>
-        <li class="product-item"><span class="product-name">REMOTE CONTROL RC PRO 2 FOR MAVIC 4</span><span class="product-price">₪4,236</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI RONIN RS5 COMBO</span><span class="product-price">₪2,075</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI RONIN RS5</span><span class="product-price">₪1,779</span></li>
-        <li class="product-item"><span class="product-name">OSMO ACTION 6 DIVING ACCESORY KIT</span><span class="product-price">₪270</span></li>
-        <li class="product-item"><span class="product-name">OSMO ACTION 6 ND FILTER SET</span><span class="product-price">₪211</span></li>
-        <li class="product-item"><span class="product-name">עדשה רחבה OSMO ACTION 6 FOV BOOST LENS</span><span class="product-price">₪381</span></li>
-        <li class="product-item"><span class="product-name">עדשת מאקרו OSMO ACTION 6 MACRO LENS LENS</span><span class="product-price">₪626</span></li>
-        <li class="product-item"><span class="product-name">DJI Neo 2 Digital Transceiver</span><span class="product-price">₪84</span></li>
-        <li class="product-item"><span class="product-name">DJI ROMO A</span><span class="product-price sale">₪1,999 (מבצע!)</span></li>
-        <li class="product-item"><span class="product-name">DJI ROMO S</span><span class="product-price sale">₪1,499 (מבצע!)</span></li>
-        <li class="product-item"><span class="product-name">DJI ROMO P</span><span class="product-price">₪4,491</span></li>
-        <li class="product-item"><span class="product-name">מברשת ROMO Side Brush</span><span class="product-price">₪109</span></li>
-        <li class="product-item"><span class="product-name">פילטר ROMO High-Efficiency Filter</span><span class="product-price">₪118</span></li>
-        <li class="product-item"><span class="product-name">שקית אבק ROMO Base Station Dust Bag</span><span class="product-price">₪109</span></li>
-        <li class="product-item"><span class="product-name">מברשת ROMO Roller Brush With Bristles and Rubber</span><span class="product-price">₪109</span></li>
-        <li class="product-item"><span class="product-name">משטח שיפוע ROMO Auxiliary Ramp</span><span class="product-price">₪84</span></li>
-        <li class="product-item"><span class="product-name">מברשת רולר פלסטית ROMO Rubber Roller Brush</span><span class="product-price">₪109</span></li>
-        <li class="product-item"><span class="product-name">ערכת אביזרים ROMO Accessory Kit(GL)</span><span class="product-price">₪677</span></li>
-        <li class="product-item"><span class="product-name">פד שטיפה ROMO Mop Pad (GL)</span><span class="product-price">₪109</span></li>
-        <li class="product-item"><span class="product-name">נוזל ניקיון ROMO Cleaning Solution(GL)</span><span class="product-price">₪67</span></li>
-        <li class="product-item"><span class="product-name">מבשם ROMO Floor Deodorizer</span><span class="product-price">₪75</span></li>
-        <li class="product-item"><span class="product-name">OSMO 1.5M EXTENSION ROD KIT(DUAL-DIRECTION QUICK-RELEASE)</span><span class="product-price">₪143</span></li>
-        <li class="product-item"><span class="product-name">מוט Osmo 2.5m Extended Carbon Fiber Selfie Stic</span><span class="product-price">₪381</span></li>
-        <li class="product-item"><span class="product-name">Avata 360 (RC 2)</span><span class="product-price sale">₪1,999 (מבצע!)</span></li>
-        <li class="product-item"><span class="product-name">רחפן - (DJI Avata 360 Motion Fly More Combo (DJI Goggles N3</span><span class="product-price">₪3,728</span></li>
-        <li class="product-item"><span class="product-name">רחפן - (DJI Avata 360 Fly More Combo (DJI RC 2</span><span class="product-price">₪3,728</span></li>
-        <li class="product-item"><span class="product-name">רחפן - (DJI Lito X1 Fly More Combo (DJI RC 2</span><span class="product-price">₪2,499</span></li>
-        <li class="product-item"><span class="product-name">רחפן - (DJI Lito X1 Fly More Combo Plus (DJI RC 2</span><span class="product-price">₪2,838</span></li>
-        <li class="product-item"><span class="product-name">רחפן - DJI Lito 1</span><span class="product-price">₪1,228</span></li>
-        <li class="product-item"><span class="product-name">רחפן -(DJI Lito 1 Fly More Combo (DJI RC-RN3</span><span class="product-price">₪1,821</span></li>
-        <li class="product-item"><span class="product-name">רכזת טעינה - DJI Neo 2 Two-Way Charging Hub</span><span class="product-price">₪126</span></li>
-        <li class="product-item"><span class="product-name">סוללה לרחפן - DJI Neo 2 Intelligent Flight Battery</span><span class="product-price">₪143</span></li>
-        <li class="product-item"><span class="product-name">ערכת החלפת עדשה עם כלים -DJI Avata 360 Replacement Lens Kit</span><span class="product-price">₪143</span></li>
-        <li class="product-item"><span class="product-name">ערכת החלפת עדשה - DJI Avata 360 Replacement Lens Kit</span><span class="product-price">₪109</span></li>
-        <li class="product-item"><span class="product-name">מתאם רסיבר-DJI Mic Series Mobile Receiver Adapter (USB-C to</span><span class="product-price">₪75</span></li>
-        <li class="product-item"><span class="product-name">קייס צלילה- Osmo Action 6 Waterproof Case</span><span class="product-price">₪219</span></li>
-        <li class="product-item"><span class="product-name">פילטרים -(OSMO NANO ND Filter (8/16/32</span><span class="product-price">₪228</span></li>
-        <li class="product-item"><span class="product-name">תושבת למושב אופניים -Osmo Action Bike Seat Rail Mount</span><span class="product-price">₪75</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI OSMO POCKET CREATOR COMBO 4 קומבו</span><span class="product-price">₪1,864</span></li>
-        <li class="product-item"><span class="product-name">מייצב DJI OSMO POCKET STANDARD COMBO 4 קומבו</span><span class="product-price">₪1,609</span></li>
-        <li class="product-item"><span class="product-name">מיקרופון אלחוטי DJI Mic Mini 2 (2 TX + 1 Mobile RX Chargin</span><span class="product-price">₪253</span></li>
-        <li class="product-item"><span class="product-name">מיקרופון אלחוטי (Mic Mini 2 (2 TX + 1 RX + Charging Case</span><span class="product-price">₪338</span></li>
-        <li class="product-item"><span class="product-name">מיקרופון אלחוטי(DJI Mic Mini 2 (1 TX + 1 RX</span><span class="product-price">₪211</span></li>
-        <li class="product-item"><span class="product-name">מייצב לטלפון Osmo Mobile 8P Creator Combo</span><span class="product-price">₪847</span></li>
-        <li class="product-item"><span class="product-name">מייצב לטלפון Osmo Mobile 8P AdvancedTracking Combo</span><span class="product-price">₪677</span></li>
-        <li class="product-item"><span class="product-name">תושבת מצלמה לקסדת רכיבה - DJI Osmo Helmet Chin Mount Clip</span><span class="product-price">₪160</span></li>
-        <li class="product-item"><span class="product-name">מסגרת למצלמת אקשן Osmo Action 6 Utility Frame 6</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">מצלמת Osmo 360 2 Adventure combo</span><span class="product-price">₪2,287</span></li>
-        <li class="product-item"><span class="product-name">רצועת צוואר לשלט</span><span class="product-price">₪84</span></li>
-        <li class="product-item"><span class="product-name">מתאם מצלמה מגנטי+וואקום</span><span class="product-price">₪109</span></li>
-        <li class="product-item"><span class="product-name">מעמד לטלפון מגנטי לשלט ללא מסך</span><span class="product-price">₪84</span></li>
-        <li class="product-item"><span class="product-name">מעמד ACTION לקסדה</span><span class="product-price">₪67</span></li>
-        <li class="product-item"><span class="product-name">מזוודה קשיחה MAVIC 4</span><span class="product-price">₪253</span></li>
-        <li class="product-item"><span class="product-name">מזוודה קשיחה AIR SERIE</span><span class="product-price">₪211</span></li>
-        <li class="product-item"><span class="product-name">מזוודה קשיחה MINI SERIE</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">תיק צד MINI 4 PRO</span><span class="product-price">₪126</span></li>
-        <li class="product-item"><span class="product-name">מזוודה קשיחה AVATA 360</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">תיק צד AVATA 360</span><span class="product-price">₪211</span></li>
-        <li class="product-item"><span class="product-name">מזוודה קשיחה LITO</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">תיק צד LITO</span><span class="product-price">₪84</span></li>
-        <li class="product-item"><span class="product-name">תיק צד NEO 2 COMBO</span><span class="product-price">₪109</span></li>
-        <li class="product-item"><span class="product-name">תיק צד NEO 2 בסיס</span><span class="product-price">₪126</span></li>
-        <li class="product-item"><span class="product-name">מזוודה קשיחהNEO 2</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">מזוודה קשיחה MAVIC 2</span><span class="product-price">₪169</span></li>
-        <li class="product-item"><span class="product-name">תיק גב AVATA 2</span><span class="product-price">₪126</span></li>
-        <li class="product-item"><span class="product-name">50cm משטח נחיתה</span><span class="product-price">₪58</span></li>
-        <li class="product-item"><span class="product-name">מטען 240W - POWER ADAPTER DJI</span><span class="product-price">₪592</span></li>
-    </ul>
-    <div id="noResults" class="no-results">לא נמצאו מוצרים תואמים לחיפוש.</div>
+
+<div class="header">
+    <h1>מחירון חנות הרצליה</h1>
+    <div class="header-meta">
+        <span class="header-pill">מחירים לצרכן כולל מע"מ</span>
+        <span class="header-pill" id="todayDatePill"></span>
+    </div>
 </div>
+
+<div class="sticky-controls">
+    <div class="container">
+        <div class="search-row">
+            <div class="search-wrap">
+                <input type="search" id="searchInput" class="search-box" placeholder="חפש שם מוצר, ברקוד או מק&quot;ט..." autocomplete="off" inputmode="search">
+                <button type="button" id="clearBtn" class="clear-btn" aria-label="נקה חיפוש">✕</button>
+            </div>
+            <button type="button" id="scanBtn" class="scan-btn" aria-label="סרוק ברקוד במצלמה">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
+                    <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
+                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                    <line x1="7" y1="8" x2="7" y2="16"/>
+                    <line x1="11" y1="8" x2="11" y2="16"/>
+                    <line x1="15" y1="8" x2="15" y2="16"/>
+                    <line x1="17" y1="8" x2="17" y2="16"/>
+                </svg>
+                <span>סרוק</span>
+            </button>
+        </div>
+        <div class="filters-bar" id="filtersBar"></div>
+    </div>
+</div>
+
+<div class="status-bar">
+    <span id="resultsCount"></span>
+    <span>עדכון מחירון: 20/11/2026</span>
+</div>
+
+<ul class="product-list" id="productList"></ul>
+<div class="empty-state" id="emptyState">
+    <strong>לא נמצאו מוצרים תואמים</strong>
+    <span>נסה לחפש מילה אחרת, מק"ט או לסרוק ברקוד מחדש.</span>
+</div>
+
+<!-- Barcode Scanner Modal -->
+<div class="modal-backdrop" id="scannerModal" role="dialog" aria-modal="true" aria-labelledby="scannerTitle">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 id="scannerTitle">סריקת ברקוד</h2>
+            <button type="button" class="modal-close" id="closeModalBtn" aria-label="סגור">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="reader"></div>
+            <div class="scanner-msg" id="scannerMsg">כוון את המצלמה אל הברקוד שעל גבי האריזה...</div>
+            <div class="scanner-err" id="scannerErr"></div>
+        </div>
+    </div>
+</div>
+
 <script>
-    function filterProducts() {
-        let input = document.getElementById('searchInput');
-        let filter = input.value.toUpperCase();
-        let ul = document.getElementById('productList');
-        let li = ul.getElementsByTagName('li');
-        let noResults = document.getElementById('noResults');
-        let hasResults = false;
-        for (let i = 0; i < li.length; i++) {
-            let nameSpan = li[i].getElementsByClassName('product-name')[0];
-            let txtValue = nameSpan.textContent || nameSpan.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) { li[i].style.display = ""; hasResults = true; } 
-            else { li[i].style.display = "none"; }
-        }
-        if (!hasResults) { noResults.style.display = "block"; } 
-        else { noResults.style.display = "none"; }
+const PRODUCTS = [{"src":"נובמבר סייל","cat":"סאפים","sku":"77001-001-94","mpn":"","bc":"6954521607788","name":"סאפ+מש BT-23VAP VAPOR 3.15/79/15 חדש","reg":1499,"regSale":1199,"regSaleLbl":"מבצע רגיל","promo":799,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77001-001-98","mpn":"","bc":"6954521608754","name":"סאפ + מנוע סנפיר AMGO 330PFS 330*81*15","reg":2799,"regSale":1499,"regSaleLbl":"מבצע רגיל","promo":1099,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77001-001-99","mpn":"","bc":"6954521608761","name":"סאפ + מנוע סנפיר AMGO 366PFS 366*84*15","reg":2999,"regSale":1699,"regSaleLbl":"מבצע רגיל","promo":1299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77001-003-03","mpn":"","bc":"6954521608891","name":"סאפ+מש BT-26FUP FUSION 3.3/81/15","reg":1799,"regSale":1199,"regSaleLbl":"מבצע רגיל","promo":799,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77001-001-90","mpn":"","bc":"6954521607795","name":"סאפ+מש BT-23FUP FUSION 3.3/81/15","reg":1599,"regSale":1199,"regSaleLbl":"מבצע רגיל","promo":799,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77001-001-92","mpn":"","bc":"6954521607801","name":"סאפ+משוט BT-23MOP MONSTER 3.66M חדש","reg":1899,"regSale":1399,"regSaleLbl":"מבצע רגיל","promo":1299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77001-003-02","mpn":"","bc":"6954521608884","name":"סאפ+מש BT-26VAP VAPOR 3.15/79/15","reg":1999,"regSale":1299,"regSaleLbl":"מבצע רגיל","promo":799,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77000-000-85","mpn":"","bc":"6954521606095","name":"קיאק יחיד+משוט BE-312 BETTA22","reg":1690,"regSale":899,"regSaleLbl":"מבצע רגיל","promo":699,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77000-001-62","mpn":"","bc":"6954521600352","name":"קיאק 2 אנשים+2משוטים ירוק BE-412 BETTA","reg":2190,"regSale":1099,"regSaleLbl":"מבצע רגיל","promo":799,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77000-001-33","mpn":"","bc":"6954521600369","name":"קיאק 3 אנשים+3משוטים ירוק BE-475 BETTA","reg":3790,"regSale":1299,"regSaleLbl":"מבצע רגיל","promo":999,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77000-001-63","mpn":"","bc":"6954521600406","name":"קיאק 2 אנשים+2משוט LA-320 LAXO","reg":2690,"regSale":1599,"regSaleLbl":"מבצע רגיל","promo":1099,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77000-001-64","mpn":"","bc":"6954521600383","name":"קיאק 2 אנשי מקצועי ST412 STEAM","reg":3490,"regSale":1999,"regSaleLbl":"מבצע רגיל","promo":1299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77000-000-77","mpn":"","bc":"6954521603773","name":"סירת ספורט מתנפחת BT-88820 MOTION","reg":790,"regSale":499,"regSaleLbl":"מבצע רגיל","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77001-003-09","mpn":"","bc":"6954521608488","name":"סאפ+מש PURE AIR PA-25C366 366/81/15 כתום","reg":1699,"regSale":799,"regSaleLbl":"מבצע רגיל","promo":749,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"סאפים","sku":"77001-001-89","mpn":"","bc":"6954521608464","name":"סאפ+מש PURE AIR PA-25C330 330/81/15 כתום","reg":1399,"regSale":699,"regSaleLbl":"מבצע רגיל","promo":599,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"mspa","sku":"77001-002-02","mpn":"","bc":"6954521624945","name":"אמבט בועות 6ע MSPA LITE CLOUD LR062-NA","reg":2999,"regSale":1799,"regSaleLbl":"מבצע רגיל","promo":1299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"mspa","sku":"77001-001-95","mpn":"","bc":"6954521633145","name":"אמבט בועות MS23 FRAME OSLO F-OS063WP","reg":16999,"regSale":11999,"regSaleLbl":"מבצע רגיל","promo":9999,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"mspa","sku":"77000-001-76","mpn":"","bc":"6954521630434","name":"אמבט בועות MS23 FRAME OSLO F-OS063W","reg":14999,"regSale":9999,"regSaleLbl":"מבצע רגיל","promo":8999,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"mspa","sku":"77001-002-03","mpn":"","bc":"6954521633855","name":"אמבט בועות MSPA FRAME OSLO Aero PLUS F-OS063WAP","reg":14990,"regSale":11999,"regSaleLbl":"מבצע רגיל","promo":9999,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"mspa","sku":"77001-002-05","mpn":"","bc":"6954521636054","name":"אמבט בועות MSPA FRAME DENVER F-DE066W","reg":14990,"regSale":9999,"regSaleLbl":"מבצע רגיל","promo":8999,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"mspa","sku":"77001-002-04","mpn":"","bc":"6954521635453","name":"אמבט בועות MSPA FRAME AMBER Aero PLUS F-AM063WAP","reg":14990,"regSale":12999,"regSaleLbl":"מבצע רגיל","promo":9999,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"mspa","sku":"77001-001-97","mpn":"","bc":"6954521627618","name":"אמבט בועה 6ע MSPA MONO-ECO F-MO062WE","reg":9999,"regSale":3499,"regSaleLbl":"מבצע רגיל","promo":3399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"mspa","sku":"77000-001-47","mpn":"","bc":"6954521627588","name":"אמבט בבל+M22 MUSE CARLTON M-CA062 JET","reg":6990,"regSale":2799,"regSaleLbl":"מבצע רגיל","promo":2399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"mspa","sku":"77000-000-95","mpn":"","bc":"6954521627472","name":"אמבט בועות 6מ MS23 COMFORT TEKAPO C-TE062","reg":4999,"regSale":1899,"regSaleLbl":"מבצע רגיל","promo":1599,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"life style","sku":"99218-001-01","mpn":"","bc":"7290117624852","name":"תיק איפור שחור + מראה עם תאורה MIR","reg":299,"regSale":89,"regSaleLbl":"מבצע רגיל","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"life style","sku":"99218-001-03","mpn":"","bc":"7290117624876","name":"תיק איפור זהב + מראה עם תאורה MIR","reg":299,"regSale":89,"regSaleLbl":"מבצע רגיל","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"life style","sku":"99219-001-18","mpn":"","bc":"7290117628416","name":"מכונת קפה דגם BTB-202- Red","reg":2199,"regSale":1399,"regSaleLbl":"מבצע רגיל","promo":1349,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"קנה קבל כוס תרמית מתנה"},{"src":"נובמבר סייל","cat":"life style","sku":"99219-001-17","mpn":"","bc":"7290117628409","name":"מכונת קפה דגם BTB-202- White","reg":2199,"regSale":1399,"regSaleLbl":"מבצע רגיל","promo":1349,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"קנה קבל כוס תרמית מתנה"},{"src":"נובמבר סייל","cat":"life style","sku":"99219-001-16","mpn":"","bc":"7290117628393","name":"מכונת קפה דגם BTB-202 - Black","reg":2199,"regSale":1399,"regSaleLbl":"מבצע רגיל","promo":1349,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"קנה קבל כוס תרמית מתנה"},{"src":"נובמבר סייל","cat":"life style","sku":"99219-001-20","mpn":"","bc":"7290117628430","name":"מכונת קפה דגם BTB-203- White","reg":2499,"regSale":1499,"regSaleLbl":"מבצע רגיל","promo":1399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"קנה קבל כוס תרמית מתנה"},{"src":"נובמבר סייל","cat":"life style","sku":"99219-001-19","mpn":"","bc":"7290117628423","name":"מכונת קפה דגם BTB-203- Black","reg":2499,"regSale":1499,"regSaleLbl":"מבצע רגיל","promo":1399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"קנה קבל כוס תרמית מתנה"},{"src":"נובמבר סייל","cat":"life style","sku":"99219-001-15","mpn":"","bc":"7290117626337","name":"מכונת קפה אוטומטית טוחנת MIRA MCM1000 שחור + סנן מים","reg":2999,"regSale":1299,"regSaleLbl":"מבצע רגיל","promo":1249,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"life style","sku":"99213-150-00","mpn":"","bc":"810139300243","name":"בוסטר לרכב TOPDON V1500 12V 1500A","reg":399,"regSale":199,"regSaleLbl":"מבצע רגיל","promo":189,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"life style","sku":"99213-220-01","mpn":"","bc":"850028162910","name":"בוסטר לרכב TOPDON V2200PLUS 12V 2200A","reg":499,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"life style","sku":"99213-300-01","mpn":"","bc":"850028162613","name":"בוסטר לרכב TOPDON JS3000 12V 3000A","reg":799,"regSale":499,"regSaleLbl":"מבצע רגיל","promo":null,"promoLbl":"מבצע נובמבר","ranges":[],"dates":"","stock":"אזל","note":""},{"src":"נובמבר סייל","cat":"life style","sku":"81000-011-04","mpn":"","bc":"7290117624821","name":"עגלת קמפינג GLAMP אפור","reg":499,"regSale":349,"regSaleLbl":"מבצע רגיל","promo":299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"קנה קבל כוס תרמית מתנה"},{"src":"נובמבר סייל","cat":"life style","sku":"81000-011-05","mpn":"","bc":"7290117624838","name":"עגלת קמפינג GLAMP ירוק","reg":499,"regSale":349,"regSaleLbl":"מבצע רגיל","promo":299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"קנה קבל כוס תרמית מתנה"},{"src":"נובמבר סייל","cat":"life style","sku":"81000-011-03","mpn":"","bc":"7290117624814","name":"עגלת קמפינג GLAMP כחול","reg":499,"regSale":349,"regSaleLbl":"מבצע רגיל","promo":299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"קנה קבל כוס תרמית מתנה"},{"src":"נובמבר סייל","cat":"ריהוט","sku":"91000-002-10","mpn":"","bc":"7290117625224","name":"כורסא מתכוונת עם ריקליינר BRC710 בצבע לבן","reg":2499,"regSale":1299,"regSaleLbl":"מבצע רגיל","promo":999,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"ריהוט","sku":"91000-002-09","mpn":"","bc":"7290117625217","name":"כורסא מתכוונת עם ריקליינר BRC710 בצבע שחור","reg":2499,"regSale":1299,"regSaleLbl":"מבצע רגיל","promo":999,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"ריהוט","sku":"81000-201-04","mpn":"","bc":"7290117621837","name":"ר.גן שולחן 2.45 נפתח ל HECK 3.4","reg":4199,"regSale":1999,"regSaleLbl":"מבצע רגיל","promo":1899,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"ריהוט","sku":"81000-201-06","mpn":"","bc":"7290117621820","name":"שולחן NOFI","reg":4700,"regSale":1599,"regSaleLbl":"מבצע רגיל","promo":1499,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"ריהוט","sku":"91000-002-21","mpn":"","bc":"7290117627877","name":"כורסת עיסוי מירה MMC500","reg":5999,"regSale":3499,"regSaleLbl":"מבצע רגיל","promo":3199,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"ריהוט","sku":"91000-002-22","mpn":"","bc":"7290117627884","name":"כורסת עיסוי מירה MMC600","reg":7999,"regSale":4899,"regSaleLbl":"מבצע רגיל","promo":3999,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"ריהוט","sku":"81000-011-21","mpn":"","bc":"7290123243139","name":"שולחן פלסטיק מתקפל לבן LT18 MIRA","reg":199,"regSale":null,"regSaleLbl":"","promo":129,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"חזר למלאי"},{"src":"נובמבר סייל","cat":"ריהוט","sku":"81000-011-22","mpn":"","bc":"7290123243146","name":"שולחן פלסטיק מתקפל שחור LT18 MIRA","reg":199,"regSale":null,"regSaleLbl":"","promo":129,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"חזר למלאי"},{"src":"נובמבר סייל","cat":"ריהוט","sku":"81000-011-09","mpn":"","bc":"7290117624913","name":"כיסא פלסטיק מתקפל אופוויט MIRA","reg":129,"regSale":null,"regSaleLbl":"","promo":89,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"חזר למלאי"},{"src":"נובמבר סייל","cat":"מכונות שטיפה","sku":"55555-014-01","mpn":"","bc":"8016287154642","name":"מכונת שטיפה MICHELIN בלחץ 110 באר","reg":399,"regSale":null,"regSaleLbl":"","promo":249,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מכונות שטיפה","sku":"55555-150-03","mpn":"","bc":"8016287156561","name":"מכונת שטיפה ARXP150LHT BOX3 150BAR","reg":599,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מכונות שטיפה","sku":"55555-180-04","mpn":"","bc":"8016287156578","name":"מכונת שטיפה ARXP180DSS BOX4 180BAR","reg":799,"regSale":null,"regSaleLbl":"","promo":549,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מכונות שטיפה","sku":"55555-160-05","mpn":"","bc":"8016287156585","name":"מכונת שטיפה משאבה כפולה ARXP160DTS BOX5 160BAR","reg":899,"regSale":null,"regSaleLbl":"","promo":649,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מזוודות","sku":"99219-000-07","mpn":"","bc":"7290117625965","name":"סט 3 מזוודות אפור כהה MIR","reg":999,"regSale":499,"regSaleLbl":"מבצע רגיל","promo":479,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מזוודות","sku":"99219-000-08","mpn":"","bc":"7290117625972","name":"סט 3 מזוודות ירוק כהה MIR","reg":999,"regSale":499,"regSaleLbl":"מבצע רגיל","promo":479,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מזוודות","sku":"99219-000-09","mpn":"","bc":"7290117626245","name":"סט 3 מזוודות כחול כהה MIR","reg":999,"regSale":499,"regSaleLbl":"מבצע רגיל","promo":479,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מזוודות","sku":"99219-000-10","mpn":"","bc":"7290117626252","name":"סט 3 מזוודות ורוד MIR","reg":999,"regSale":499,"regSaleLbl":"מבצע רגיל","promo":479,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מזוודות","sku":"99219-000-17","mpn":"","bc":"7290117626542","name":"סט 3 מזוודות אדום MIR MLS600","reg":799,"regSale":399,"regSaleLbl":"מבצע רגיל","promo":379,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מזוודות","sku":"99219-000-21","mpn":"","bc":"7290117628034","name":"סט 3 מזוודות אפור כהה MIR MLS600","reg":799,"regSale":399,"regSaleLbl":"מבצע רגיל","promo":379,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מזוודות","sku":"99219-000-23","mpn":"","bc":"7290117628058","name":"סט 3 מזוודות כחול כהה MIR MLS600","reg":799,"regSale":399,"regSaleLbl":"מבצע רגיל","promo":379,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-24","mpn":"","bc":"7290117629567","name":"כסא משרדי Miracase MeshLoop","reg":410,"regSale":299,"regSaleLbl":"מבצע רגיל","promo":null,"promoLbl":"מבצע נובמבר","ranges":[],"dates":"","stock":"אזל","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-25","mpn":"","bc":"7290117629574","name":"כסא משרדי ארגונומי Miracase Urbanwhite","reg":690,"regSale":579,"regSaleLbl":"מבצע רגיל","promo":null,"promoLbl":"מבצע נובמבר","ranges":[],"dates":"","stock":"אזל","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-26","mpn":"","bc":"7290117629581","name":"כסא משרדי ארגונומי Miracase Ergoboost","reg":950,"regSale":749,"regSaleLbl":"מבצע רגיל","promo":null,"promoLbl":"מבצע נובמבר","ranges":[],"dates":"","stock":"אזל","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-14","mpn":"","bc":"7290117627044","name":"כסא ארגונומי Miracase Supporta","reg":990,"regSale":800,"regSaleLbl":"מבצע רגיל","promo":700,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-27","mpn":"","bc":"7290117629598","name":"כסא מנהלים ארגונומי Miracase ManagerErPro","reg":1990,"regSale":1789,"regSaleLbl":"מבצע רגיל","promo":1490,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"90902-806-33","mpn":"","bc":"7290117624081","name":"כסא ארגונומי CH05-22","reg":1390,"regSale":989,"regSaleLbl":"מבצע רגיל","promo":790,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"90902-807-16","mpn":"","bc":"7290117624722","name":"כסא בר מעבדה עמידה ישיבה עגול ארגונומי כולל כיוון גובה הטיה ומנשא רגלים","reg":620,"regSale":450,"regSaleLbl":"מבצע רגיל","promo":null,"promoLbl":"מבצע נובמבר","ranges":[],"dates":"","stock":"אזל","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-17","mpn":"","bc":"7290117627303","name":"כסא ארגונומי מנהלים, עם משענת לרגליים. כסא שחור מסגרת כתומה MWMS200","reg":1390,"regSale":989,"regSaleLbl":"מבצע רגיל","promo":720,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-18","mpn":"","bc":"7290117627310","name":"כסא ארגונומי מנהלים, עם משענת לרגליים. כסא שחור מסגרת אפורה MWMS200","reg":1390,"regSale":989,"regSaleLbl":"מבצע רגיל","promo":720,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-19","mpn":"","bc":"7290117627327","name":"כסא ארגונומי מנהלים, עם משענת לרגליים. כסא אפור מסגרת אפורה MWMS200","reg":1390,"regSale":989,"regSaleLbl":"מבצע רגיל","promo":null,"promoLbl":"מבצע נובמבר","ranges":[],"dates":"","stock":"אזל","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-20","mpn":"","bc":"7290117627334","name":"כסא שחור מסגרת אפור כהה MWMS200 עם מושב בד!","reg":1390,"regSale":null,"regSaleLbl":"","promo":989,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":"17 יח"},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-12","mpn":"","bc":"7290117627020","name":"מושב עם גב רשת MWMS200","reg":1390,"regSale":989,"regSaleLbl":"מבצע רגיל","promo":720,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-15","mpn":"","bc":"7290117627051","name":"כסא פרימיום ארגונומי מנהלים,","reg":1790,"regSale":1350,"regSaleLbl":"מבצע רגיל","promo":null,"promoLbl":"מבצע נובמבר","ranges":[],"dates":"","stock":"אזל","note":""},{"src":"נובמבר סייל","cat":"כסאות ארגונומים","sku":"91000-002-16","mpn":"","bc":"7290117627068","name":"כסא פרימיום ארגונומי מנהלים,","reg":1790,"regSale":1350,"regSaleLbl":"מבצע רגיל","promo":null,"promoLbl":"מבצע נובמבר","ranges":[],"dates":"","stock":"אזל","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99216-010-02","mpn":"","bc":"7290117622827","name":"טאבון פיצה P-140 '14 כתום MIRA","reg":1199,"regSale":749,"regSaleLbl":"מבצע רגיל","promo":649,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99216-010-05","mpn":"","bc":"7290117625262","name":"טאבון פיצה PH-14-G-P '14 אבן מסתובבת כתום MIRA","reg":1399,"regSale":899,"regSaleLbl":"מבצע רגיל","promo":849,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99218-000-12","mpn":"","bc":"7290111749704","name":"מתנפח לגינה-עולם הדינוזאוריםMJ05 (צינור מים)","reg":1999,"regSale":1399,"regSaleLbl":"מבצע רגיל","promo":1249,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99218-000-13","mpn":"","bc":"7290111749711","name":"מתנפח לגינה-עולם הקופים MJ07 (צינור מים)","reg":2290,"regSale":1599,"regSaleLbl":"מבצע רגיל","promo":1299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99218-001-34","mpn":"","bc":"7290117628614","name":"מתנפח לגינה-עולם המגלשות-MJ70 - (צינור מים)","reg":2499,"regSale":null,"regSaleLbl":"","promo":1499,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99218-001-35","mpn":"","bc":"7290117628621","name":"מתנפח לגינה-טירת הכדורים-MJ68 (בריכה - כדורים/מים)","reg":1399,"regSale":1199,"regSaleLbl":"מבצע רגיל","promo":899,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99219-002-03","mpn":"","bc":"7290020114723","name":"מכונת ברד אפור MIRA MS880 2.6L","reg":699,"regSale":499,"regSaleLbl":"מבצע נקודתי","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"OUKITEL","sku":"99607-870-16","mpn":"","bc":"6931940745277","name":"טאבלט OUKITEL OT6 4+64 10.1 אפור סוללה 8000mAh","reg":629,"regSale":529,"regSaleLbl":"מבצע רגיל","promo":499,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"OUKITEL","sku":"99607-870-25","mpn":"","bc":"6931940799454","name":"טאבלט OUKITEL OT6 PRO SIM 4+128 10.1 אפור סוללה 8000mAh","reg":699,"regSale":629,"regSaleLbl":"מבצע רגיל","promo":569,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99914-014-17","mpn":"","bc":"7290117629376","name":"רינגלייט מקצועי 21 אינץ' MIR MSSL21 55W","reg":399,"regSale":299,"regSaleLbl":"מבצע רגיל","promo":229,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99317-000-51","mpn":"","bc":"7290117624418","name":"סוללת טעינה מיני 10000 30W צג דיגיטלי MIR","reg":199,"regSale":149,"regSaleLbl":"מבצע רגיל","promo":129,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99700-900-55","mpn":"","bc":"6978145870564","name":"רמקול W-KING D110 10W","reg":199,"regSale":null,"regSaleLbl":"","promo":149,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"81000-005-01","mpn":"","bc":"6974864165271","name":"מסך מחשב מירקייס MD24IST MIRACASE FHD 24 + SP","reg":499,"regSale":449,"regSaleLbl":"מבצע רגיל","promo":299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99701-804-34","mpn":"","bc":"7290117628799","name":"מטען אלחוטי מגסייף MQI2W590 QI2 שחור MIR","reg":199,"regSale":189,"regSaleLbl":"מבצע רגיל","promo":149,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99700-901-25","mpn":"","bc":"7290117628577","name":"מקלדת מכנית מלאה MMCK200 שחור MIR","reg":249,"regSale":239,"regSaleLbl":"מבצע רגיל","promo":199,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללי","sku":"99918-286-03","mpn":"","bc":"7290117629253","name":"בידורית + מיק אלחוטי MIR MKS80","reg":999,"regSale":899,"regSaleLbl":"מבצע רגיל","promo":779,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-808-03","mpn":"","bc":"7290117627150","name":"שולחן SCORPIUS DESKPRO-BL 110","reg":599,"regSale":null,"regSaleLbl":"","promo":349,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-808-05","mpn":"","bc":"7290117627167","name":"שולחן SCORPIUS DESKPRO-HJ 110","reg":609,"regSale":null,"regSaleLbl":"","promo":379,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-808-04","mpn":"","bc":"7290117627198","name":"שולחן SCORPIUS DESKPRO-HJ 120","reg":699,"regSale":null,"regSaleLbl":"","promo":419,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-807-49","mpn":"","bc":"7290117624579","name":"שולחן גיימינג Lumi LSpace","reg":749,"regSale":null,"regSaleLbl":"","promo":449,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-807-50","mpn":"","bc":"7290117624586","name":"שולחן גיימינג RGB 120 Lumi space","reg":699,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-807-51","mpn":"","bc":"7290117624593","name":"שולחן גיימינג RGB 140 Lumi spaceXL","reg":749,"regSale":null,"regSaleLbl":"","promo":449,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90901-000-10","mpn":"","bc":"7290117621455","name":"מושב גיימינג SCORPIUS GAMER RED","reg":999,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90901-000-09","mpn":"","bc":"7290117621448","name":"מושב גיימינג SCORPIUS GAMER BLUE","reg":999,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-801-65","mpn":"","bc":"7290117621769","name":"מושב גיימינג SCORPIUS LIFE אדום","reg":899,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-801-68","mpn":"","bc":"7290117624951","name":"מושב גיימינג SCORPIUS LIFE כחול","reg":899,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-818-01","mpn":"","bc":"7290117627228","name":"מושב גיימינג SCORPIUS LIFE כתום","reg":899,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-818-02","mpn":"","bc":"7290117627235","name":"מושב גיימינג SCORPIUS LIFE לבן","reg":899,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90901-000-08","mpn":"","bc":"7290117621431","name":"מושב גיימינג SCORPIUS LIGHTNING BLUE","reg":1099,"regSale":null,"regSaleLbl":"","promo":499,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-818-06","mpn":"","bc":"7290123240763","name":"כיסא גיימינג GREYFORCE דגם SCORPIUS F4 9827","reg":999,"regSale":null,"regSaleLbl":"","promo":699,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-818-05","mpn":"","bc":"7290123240756","name":"כיסא גיימינג INMAGIC דגם SCORPIUS F4 9822","reg":999,"regSale":null,"regSaleLbl":"","promo":699,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-801-78","mpn":"","bc":"7290117622797","name":"מושב גיימינג בד-אפור בהיר SCORPIUS PERFORMANCE","reg":1099,"regSale":null,"regSaleLbl":"","promo":649,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"SCORPIUS","sku":"90902-801-79","mpn":"","bc":"7290117622803","name":"מושב גיימינג בד-כחול SCORPIUS PERFORMANCE","reg":1099,"regSale":null,"regSaleLbl":"","promo":649,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-10","2026-11-30"]],"dates":"10/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-04","mpn":"","bc":"6951800665965","name":"פח רגלית EK6255 50L NEW HANA שחו","reg":399,"regSale":269,"regSaleLbl":"מבצע רגיל","promo":219,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-31","mpn":"","bc":"6951800608825","name":"פח רגלית שחור 30 ליטר EKO MADISON EK9361","reg":499,"regSale":299,"regSaleLbl":"מבצע רגיל","promo":249,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-32","mpn":"","bc":"6951800623583","name":"פח רגלית לבן 30 ליטר EKO MADISON EK9361","reg":499,"regSale":299,"regSaleLbl":"מבצע רגיל","promo":249,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-21","mpn":"","bc":"6951800607743","name":"פח סנסור נירוסטה חצי עיגול 47 ליטר MIRAGE SEMI-ROUND","reg":899,"regSale":569,"regSaleLbl":"מבצע רגיל","promo":499,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-22","mpn":"","bc":"6951800608061","name":"פח רגלית לבן מט 40 ליטר HANNA EK6268","reg":399,"regSale":259,"regSaleLbl":"מבצע רגיל","promo":199,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-23","mpn":"","bc":"6951800607033","name":"פח רגלית שחור מט 40 ליטר HANNA EK6268","reg":399,"regSale":259,"regSaleLbl":"מבצע רגיל","promo":199,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-24","mpn":"","bc":"6951800606333","name":"פח רגלית חצי עיגול 55 ליטר HANNA שחור מט EK6221","reg":499,"regSale":379,"regSaleLbl":"מבצע רגיל","promo":329,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-25","mpn":"","bc":"6951800606340","name":"פח רגלית חצי עיגול 55 ליטר HANNA לבן מט EK6221","reg":499,"regSale":379,"regSaleLbl":"מבצע רגיל","promo":329,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-26","mpn":"","bc":"6951800622920","name":"פח סנסור 50 ליטר שחור דגם HANNA EK6233","reg":499,"regSale":279,"regSaleLbl":"מבצע רגיל","promo":209,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-27","mpn":"","bc":"6951800623972","name":"פח סנסור 50 ליטר לבן דגם HANNA EK6233","reg":499,"regSale":279,"regSaleLbl":"מבצע רגיל","promo":209,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-28","mpn":"","bc":"6951800683297","name":"פח נירוסטה 7 ליטר Puro s 'תלייה על הדלת' EK9008","reg":149,"regSale":99,"regSaleLbl":"מבצע רגיל","promo":89,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-29","mpn":"","bc":"6951800629097","name":"פח סנסור נירוסטה 60 ליטר ECONOVA דגם EK9578","reg":749,"regSale":479,"regSaleLbl":"מבצע רגיל","promo":359,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-008-30","mpn":"","bc":"6951800627116","name":"פח סנסור נירוסטה 50 ליטר Phantom pro פרפר EK9577","reg":749,"regSale":479,"regSaleLbl":"מבצע רגיל","promo":369,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-011-07","mpn":"","bc":"6951800677883","name":"פח רגלית EKO X-CUBE 45L לבן מט","reg":799,"regSale":639,"regSaleLbl":"מבצע רגיל","promo":629,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"פחים","sku":"99216-001-06","mpn":"","bc":"6951800617230","name":"פח רגלית EKO X-CUBE 45L שחור","reg":799,"regSale":639,"regSaleLbl":"מבצע רגיל","promo":629,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-68","mpn":"","bc":"840454402735","name":"אוזניות TB AIRLITE NINTENDO MARIO STAR","reg":109,"regSale":null,"regSaleLbl":"","promo":69,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-42","mpn":"","bc":"840454402179","name":"אוזניות שחור לבן TB Airlite Nintendo Switch 2","reg":109,"regSale":null,"regSaleLbl":"","promo":69,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-43","mpn":"","bc":"840454402216","name":"אוזניות שחור פחם TB Airlite Nintendo Switch 2","reg":109,"regSale":null,"regSaleLbl":"","promo":69,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-655-50","mpn":"","bc":"731855065554","name":"אוזניות TURT RECON 70 BLUE CAMO 3.5","reg":139,"regSale":null,"regSaleLbl":"","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-645-50","mpn":"","bc":"731855064557","name":"אוזניות TURT RECON 70 GREEN CAMO 3.5","reg":139,"regSale":null,"regSaleLbl":"","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-36","mpn":"","bc":"731855080007","name":"אוזניות גיימינג חוטיות RECON 70 NS2","reg":139,"regSale":null,"regSaleLbl":"","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-300-11","mpn":"","bc":"731855030019","name":"אוזנייה לבן TURTLE BEACH RECON 70P White","reg":139,"regSale":null,"regSaleLbl":"","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-200-11","mpn":"","bc":"731855020010","name":"אוזנייה לבן TURTLE BEACH RECON 70X White","reg":139,"regSale":null,"regSaleLbl":"","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-300-10","mpn":"","bc":"731855030002","name":"אוזנייה שחור TURTLE BEACH RECON 70P Black","reg":139,"regSale":null,"regSaleLbl":"","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-600-02","mpn":"","bc":"731855031030","name":"אוזניות אלחוטי לבן TB STEALTH 600 Gen 3 PS","reg":439,"regSale":null,"regSaleLbl":"","promo":269,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-600-01","mpn":"","bc":"731855051038","name":"אוזניות אלחוטי שחור TB STEALTH 600 Gen 3 PC/PS5","reg":439,"regSale":null,"regSaleLbl":"","promo":269,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-34","mpn":"","bc":"731855021086","name":"אוזניות אלחוטיות סגול TB STEALTH 600 Gen3 XB/PS/PC","reg":439,"regSale":null,"regSaleLbl":"","promo":269,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-27","mpn":"","bc":"840454400076","name":"בקר חוטי לבן TB Afterglow RGB WAVE XBOX","reg":179,"regSale":null,"regSaleLbl":"","promo":119,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-26","mpn":"","bc":"840454400069","name":"בקר חוטי שחור TB Afterglow RGB WAVE XBOX","reg":179,"regSale":null,"regSaleLbl":"","promo":119,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-55","mpn":"","bc":"840454400779","name":"בקר חוטי שחור TB IGNITE RGB Time Machine PC/XBOX","reg":199,"regSale":null,"regSaleLbl":"","promo":129,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-23","mpn":"","bc":"840454400045","name":"בקר חוטי שחור-ירוק TB Rematch Core GHOST XBOX","reg":119,"regSale":null,"regSaleLbl":"","promo":69,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-25","mpn":"","bc":"840454400038","name":"בקר חוטי שחור-כתום TB Rematch Core GHOST XBOX","reg":119,"regSale":null,"regSaleLbl":"","promo":69,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-24","mpn":"","bc":"840454400021","name":"בקר חוטי שחור-צהוב TB Rematch Core GHOST XBOX","reg":119,"regSale":null,"regSaleLbl":"","promo":69,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-71","mpn":"","bc":"840454402292","name":"בקר חוטי אפ TB Afterglow NS 2 GREY","reg":149,"regSale":null,"regSaleLbl":"","promo":89,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-70","mpn":"","bc":"840454402285","name":"בקר חוטי כח TB Afterglow NS 2 BLUE","reg":149,"regSale":null,"regSaleLbl":"","promo":89,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-69","mpn":"","bc":"840454402278","name":"בקר חוטי שח TB Afterglow NS 2 BLACK","reg":149,"regSale":null,"regSaleLbl":"","promo":89,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-72","mpn":"","bc":"840454402254","name":"בקר חוטי שקוף TB Afterglow NS 2 CLEAR","reg":129,"regSale":null,"regSaleLbl":"","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-86","mpn":"","bc":"840454402315","name":"בקר אלחוטי שחור TB Rematch NS2","reg":249,"regSale":null,"regSaleLbl":"","promo":149,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-003-06","mpn":"","bc":"731855710034","name":"עכבר גיימינג לבן TB KONE II RGB","reg":279,"regSale":null,"regSaleLbl":"","promo":169,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-003-05","mpn":"","bc":"731855710027","name":"עכבר גיימינג שחור TB KONE II RGB","reg":279,"regSale":null,"regSaleLbl":"","promo":169,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-58","mpn":"","bc":"840454400823","name":"בקר אלחוטי TB REMATCH NINTENDO DONKEY KONG","reg":239,"regSale":null,"regSaleLbl":"","promo":149,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-802-26","mpn":"","bc":"840454400762","name":"אוזניות אלחוטיות לבנות TB STEALTH PRO II X","reg":1549,"regSale":null,"regSaleLbl":"","promo":1199,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-802-14","mpn":"","bc":"840454401196","name":"אוזניות אלחוטיות שחורות TB STEALTH PRO II PC","reg":1549,"regSale":null,"regSaleLbl":"","promo":1199,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-802-15","mpn":"","bc":"840454400755","name":"אוזניות אלחוטיות שחורות TB STEALTH PRO II X","reg":1549,"regSale":null,"regSaleLbl":"","promo":1199,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-802-06","mpn":"","bc":"840454401738","name":"מקלדת חוטית שחורה TB Command KB7 TKL","reg":899,"regSale":null,"regSaleLbl":"","promo":679,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-802-19","mpn":"","bc":"840454402148","name":"לוח מקשים חוטי שחור Command KP7","reg":449,"regSale":null,"regSaleLbl":"","promo":339,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-802-00","mpn":"","bc":"840454401820","name":"מקלדת חוטית שחורה TB Command KB5","reg":699,"regSale":null,"regSaleLbl":"","promo":529,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-802-07","mpn":"","bc":"840454401660","name":"עכבר אלחוטי שחור TB Command MC7","reg":699,"regSale":null,"regSaleLbl":"","promo":519,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-802-02","mpn":"","bc":"840454401653","name":"עכבר אלחוטי שחור TB Command MC5","reg":539,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-99","mpn":"","bc":"840454401646","name":"עכבר חוטי שחור TB Command MC3","reg":379,"regSale":null,"regSaleLbl":"","promo":289,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-33","mpn":"","bc":"840454400205","name":"בקר אלחוטי TB Rematch NINTENDO Invincible Mario","reg":249,"regSale":null,"regSaleLbl":"","promo":149,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"TURTLE BEACH","sku":"90905-801-32","mpn":"","bc":"840454400182","name":"בקר אלחוטי TB Rematch NINTENDO Super Mario Star","reg":249,"regSale":null,"regSaleLbl":"","promo":149,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-11","2026-11-30"]],"dates":"11/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99219-000-03","mpn":"","bc":"7290117625859","name":"מפזר חום קרמיק PTC שחור MIRA MPTCH810","reg":399,"regSale":null,"regSaleLbl":"","promo":209,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99219-000-12","mpn":"","bc":"7290117626344","name":"מפזר חום קרמיק PTC שחור MIRA MPTCH610","reg":399,"regSale":null,"regSaleLbl":"","promo":199,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99219-000-15","mpn":"","bc":"7290117626375","name":"מפזר חום קרמיק PTC לבן MIRA MPTCH710","reg":199,"regSale":null,"regSaleLbl":"","promo":109,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99219-000-14","mpn":"","bc":"7290117626368","name":"מפזר חום קרמיק PTC שחור MIRA MPTCH710","reg":199,"regSale":null,"regSaleLbl":"","promo":109,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"רובוטים","sku":"88100-388-00","mpn":"","bc":"4716873840174","name":"מנקה חלונות רובוטי HOBOT 388","reg":1299,"regSale":null,"regSaleLbl":"","promo":799,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"רובוטים","sku":"88000-850-09","mpn":"","bc":"7290123240572","name":"שואב שוטף אלחוטי RALPH STEAMDREAM","reg":1790,"regSale":null,"regSaleLbl":"","promo":1299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99700-900-61","mpn":"","bc":"7290123241531","name":"מזרן עבה זוגי אפור בהיר עם משאבה GLAMP GTDAB46 203x152x46","reg":429,"regSale":null,"regSaleLbl":"","promo":249,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99700-900-62","mpn":"","bc":"7290123241548","name":"מזרן עבה זוגי אפור/כחול עם משאבה GLAMP GTDAB46 203x152x46","reg":429,"regSale":null,"regSaleLbl":"","promo":249,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99700-900-58","mpn":"","bc":"7290123241500","name":"מזרן עבה יחיד אפור/כחול עם משאבה GLAMP 190x99x46 GTSAB46","reg":349,"regSale":null,"regSaleLbl":"","promo":159,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99700-900-57","mpn":"","bc":"7290123241494","name":"מזרן עבה יחיד אפור עם משאבה GLAMP 190x99x46 GTSAB46","reg":349,"regSale":null,"regSaleLbl":"","promo":159,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"81000-011-20","mpn":"","bc":"7290117627693","name":"עגלת משא ידנית מתקפלת 4 גלגלים עד 40 ק\"ג GLAMP","reg":199,"regSale":null,"regSaleLbl":"","promo":89,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99914-014-11","mpn":"","bc":"7290117628324","name":"עגלת משא מתקפלת כושר משיאה 75קג GLAMP FHT75","reg":199,"regSale":null,"regSaleLbl":"","promo":169,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99700-900-34","mpn":"","bc":"6958917500554","name":"בידורית + מיקרופון W-KING T9 S","reg":499,"regSale":null,"regSaleLbl":"","promo":329,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"כללית","sku":"99700-900-48","mpn":"","bc":"6978145870489","name":"רמקול W-KING D320 40W","reg":349,"regSale":null,"regSaleLbl":"","promo":259,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-52","mpn":"","bc":"8721038005035","name":"Full HD, IPS, 120Hz, רמקולים מובנים, מתאים לעבודה משרדית.","reg":419,"regSale":null,"regSaleLbl":"","promo":379,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-53","mpn":"","bc":"8721038002461","name":"Full HD עם USB-C Docking, כולל RJ45, DP-out, USB Hub, רמקולים מובנים וכיוון גובה.","reg":799,"regSale":null,"regSaleLbl":"","promo":719,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-60","mpn":"","bc":"8721038007756","name":"מסך \" Evnia Fast IPS FHD 260Hz OC 0.3ms 23.8","reg":569,"regSale":null,"regSaleLbl":"","promo":519,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-241-23","mpn":"","bc":"8712581804343","name":"24\" IPS | Full HD | 100Hz | 4ms | 250 nits | Adaptive Sync | Speakers","reg":429,"regSale":null,"regSaleLbl":"","promo":389,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-241-24","mpn":"","bc":"8712581804251","name":"IPS, 120Hz, HDMI, VGA, רמקולים","reg":389,"regSale":null,"regSaleLbl":"","promo":349,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-271-27","mpn":"","bc":"8712581804398","name":"27\" IPS | Full HD | 100Hz | 4ms | 250 nits | Adaptive Sync | Speakers","reg":540,"regSale":null,"regSaleLbl":"","promo":489,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-272-27","mpn":"","bc":"8712581804299","name":"IPS, 120Hz, HDMI, VGA, רמקולים","reg":449,"regSale":null,"regSaleLbl":"","promo":399,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36207-272-27","mpn":"","bc":"8712581780760","name":"מסך 27״ Full HD + IPS LED + 75Hz + SP + HDMI + DP + USB HUB + HAS + PIVOT","reg":639,"regSale":null,"regSaleLbl":"","promo":579,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-57","mpn":"","bc":"8712581767273","name":"מסך 27״ Full HD + IPS LED + 75Hz + SP + HDMI + DP + DVI + VGA + HAS + PIVOT","reg":629,"regSale":null,"regSaleLbl":"","promo":569,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-51","mpn":"","bc":"8721038007732","name":"מסך Evnia 27״ Full HD + IPS LED + 260Hz OC + 0.3ms + HDMI + DP + HDR10","reg":699,"regSale":null,"regSaleLbl":"","promo":null,"promoLbl":"מבצע נובמבר","ranges":[],"dates":"","stock":"אין מלאי","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-56","mpn":"","bc":"8721038003734","name":"מסך 27״ QHD + IPS LED + 120Hz + SP + HDMI x2 + DP + USB HUB + HAS + PIVOT","reg":890,"regSale":null,"regSaleLbl":"","promo":799,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-58","mpn":"","bc":"8721038007299","name":"מסך \"CAM+SP+PIVOT IPS+120HZ+QHD+USB-C+DP+WEB 27","reg":1290,"regSale":null,"regSaleLbl":"","promo":1159,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"אין מלאי","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-61","mpn":"","bc":"8721038006322","name":"מסך 26.5״ QHD, פאנל QD-OLED, קצב רענון 240Hz, זמן תגובה 0.03ms GtG, HDR, G-SYNC Compatible, חיבורי HDMI + DP, צבע לבן, מתאים לגיימינג מקצועי.","reg":2190,"regSale":null,"regSaleLbl":"","promo":1969,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"אין מלאי","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-55","mpn":"","bc":"8712581804749","name":"מסך 27״ 4K UHD, פאנל IPS LED, קצב רענון 60Hz, Thunderbolt 4 עם טעינה עד 100W, Smart KVM, חיבורי HDMI + DP, USB Hub, RJ45, מעמד ארגונומי מתכוונן.","reg":1790,"regSale":null,"regSaleLbl":"","promo":1609,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-64","mpn":"","bc":"8721038002928","name":"מסך \"5K IPS +THUNDERBOLT 4+USB HUB 27+מצלמה+PIVOT","reg":4390,"regSale":null,"regSaleLbl":"","promo":3949,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-273-27","mpn":"","bc":"8712581805715","name":"מסך 27״ 4K UHD + IPS LED + 60Hz + SP + HDMI + DP + HDR + Adaptive Sync","reg":890,"regSale":null,"regSaleLbl":"","promo":799,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-59","mpn":"","bc":"8712581806347","name":"מסך \"PH +240HZ+4K+USB-C+QD-OLED+DP+ 32 PH","reg":3690,"regSale":null,"regSaleLbl":"","promo":3319,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-32","mpn":"","bc":"8712581804947","name":"מסך Philips 32E1N3100LA בגודל 31.5 אינץ', ברזולוציית Full HD, פאנל VA, קצב רענון 75Hz, זמן תגובה 1ms MPRT ורמקולים מובנים.","reg":850,"regSale":null,"regSaleLbl":"","promo":769,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36206-346-34","mpn":"","bc":"8712581770662","name":"מסך 34״ Curved UltraWide , פאנל VA LED, 100Hz , USB-C 65W, HDMI, DP, USB Hub, רמקולים מובנים, מעמד מתכוונן גובה.","reg":1190,"regSale":null,"regSaleLbl":"","promo":1069,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-62","mpn":"","bc":"8721038002409","name":"מסך קעור \"PH VA WQHD 21:9 120Hz USB-C 90W 34B2U3600C 34","reg":1690,"regSale":null,"regSaleLbl":"","promo":1519,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-50","mpn":"","bc":"8721038001945","name":"מסך 34״ Curved UltraWide WQHD, פאנל Fast VA LED, קצב רענון 180Hz, זמן תגובה 0.5ms, HDR10, , HDMI x2, DP, מתאים לגיימינג.","reg":1049,"regSale":null,"regSaleLbl":"","promo":949,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"מסכים","sku":"36208-498-63","mpn":"","bc":"8712581802578","name":"מסך \"49 קעור DUAL QHD VA+75HZ+USB-C+DP++KVM+מצלמה+רמקולים","reg":4590,"regSale":null,"regSaleLbl":"","promo":4129,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-01","2026-11-30"]],"dates":"01/11–30/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-007-17","mpn":"","bc":"8886419354826","name":"כיסא גיימינג שחור ירוק RAZER ISKUR V2 X NEW GEN","reg":1599,"regSale":null,"regSaleLbl":"","promo":1079,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-007-15","mpn":"","bc":"8886419354734","name":"כיסא גיימינג בד שחור RAZER ISKUR V2 X","reg":1199,"regSale":null,"regSaleLbl":"","promo":899,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-007-16","mpn":"","bc":"8886419354758","name":"כיסא אפור בהיר RAZER ISKUR V2 X FABRIC","reg":1199,"regSale":null,"regSaleLbl":"","promo":899,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-43","mpn":"","bc":"8887910000465","name":"RAZER Seiren V3 Chroma מיקרופון לבן מואר","reg":639,"regSale":null,"regSaleLbl":"","promo":485,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-44","mpn":"","bc":"8887910000489","name":"RAZER Seiren V3 Chroma מיקרופון ורוד מואר","reg":639,"regSale":null,"regSaleLbl":"","promo":485,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-005-48","mpn":"","bc":"8886419334682","name":"עכבר אנכי RAZER PRO CLICK V2 VERTICAL","reg":519,"regSale":null,"regSaleLbl":"","promo":479,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-003-23","mpn":"","bc":"8886419345732","name":"מקלדת מכא אופט RAZ HUNTSMAN MINI","reg":519,"regSale":null,"regSaleLbl":"","promo":479,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-003-29","mpn":"","bc":"8886419345749","name":"מקל מכאנ RAZER HUNTSM MINI RED.S","reg":559,"regSale":null,"regSaleLbl":"","promo":479,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-003-24","mpn":"","bc":"8886419345763","name":"מקל מכא לבן RA HUNTSM MINI RED.S","reg":559,"regSale":null,"regSaleLbl":"","promo":479,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-011-44","mpn":"","bc":"8886419334521","name":"RAZER VIPER V3 PRO - WHITE עכבר","reg":719,"regSale":null,"regSaleLbl":"","promo":465,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-011-43","mpn":"","bc":"8886419334491","name":"RAZER VIPER V3 PRO - BLACK עכבר","reg":719,"regSale":null,"regSaleLbl":"","promo":465,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-003-50","mpn":"","bc":"8887910072936","name":"RAZER BLACKWIDOW V4 X GREEN S MINECRAFT ED מקלדת","reg":759,"regSale":null,"regSaleLbl":"","promo":465,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-003-52","mpn":"","bc":"8887910072943","name":"מקלדת מכנית RAZER BLACKWIDOW V4 X POKEMON","reg":759,"regSale":null,"regSaleLbl":"","promo":465,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-005-33","mpn":"","bc":"8886419334163","name":"עכב אלח לבן RA DEATHADDER V3 PRO","reg":639,"regSale":null,"regSaleLbl":"","promo":439,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-005-34","mpn":"","bc":"8886419334057","name":"עכ אלח שחור RA DEATHADDER V3 PRO","reg":639,"regSale":null,"regSaleLbl":"","promo":439,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-005-47","mpn":"","bc":"8886419334958","name":"עכבר אלח' RAZER PRO CLICK V2","reg":439,"regSale":null,"regSaleLbl":"","promo":385,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-95","mpn":"","bc":"8887910061732","name":"אוזניות RAZER Hammerhead V3 HyperSpeed","reg":559,"regSale":null,"regSaleLbl":"","promo":359,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-003-39","mpn":"","bc":"8887910072691","name":"מקל' חוט' RAZER BLACKWIDOW V4 X G.S","reg":599,"regSale":null,"regSaleLbl":"","promo":359,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-71","mpn":"","bc":"8887910061756","name":"אוזניות RAZER KITTY V2 POKEMON GENGAR","reg":619,"regSale":null,"regSaleLbl":"","promo":359,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-63","mpn":"","bc":"8887910061428","name":"אוזניות לב RAZER BLACKSHARK V3 X HYPERSPEED FOR PLAYSTATION","reg":479,"regSale":null,"regSaleLbl":"","promo":319,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-61","mpn":"","bc":"8887910061374","name":"אוזניות לבן RAZER BLACKSHARK V3 X HYPERSPEED FOR XBOX","reg":479,"regSale":null,"regSaleLbl":"","promo":319,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-62","mpn":"","bc":"8887910061404","name":"אוזניות RAZER BLACKSHARK V3 X HYPERSPEED FOR PLAYSTATION","reg":479,"regSale":null,"regSaleLbl":"","promo":319,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-60","mpn":"","bc":"8887910061350","name":"אוזניות שחור RAZER BLACKSHARK V3 X HYPERSPEED FOR XBOX","reg":479,"regSale":null,"regSaleLbl":"","promo":319,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-020-04","mpn":"","bc":"8886419387190","name":"תיק גב RAZER CHROMATIC V3 15.6","reg":479,"regSale":null,"regSaleLbl":"","promo":299,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-010-16","mpn":"","bc":"8887910061831","name":"אוזניות RAZER HAMMERHEAD V3 X XBOX In-Ear","reg":439,"regSale":null,"regSaleLbl":"","promo":289,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-35","mpn":"","bc":"8886419378235","name":"אוז' אל' RAZ BLACKSHARK V2 HYPERS.","reg":599,"regSale":null,"regSaleLbl":"","promo":285,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"נובמבר סייל","cat":"RAZER","sku":"90903-001-50","mpn":"","bc":"8887910061541","name":"אוזניות RAZER KRAKEN V4 X POKEMON","reg":439,"regSale":null,"regSaleLbl":"","promo":249,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-11-05"]],"dates":"04/11–05/11","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-545-01","mpn":"","bc":"","name":"צלמת אבטחה חיצונית Tapo C545D","reg":415,"regSale":null,"regSaleLbl":"","promo":312,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-211-11","mpn":"","bc":"","name":"מצלמה TAPO C211 WIFI 3MP IP","reg":139,"regSale":null,"regSaleLbl":"","promo":105,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-201-21","mpn":"","bc":"","name":"מצלמה TAPO C210 WIFI 3MP IP","reg":163,"regSale":null,"regSaleLbl":"","promo":123,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-222-11","mpn":"","bc":"","name":"מצלמה TAPO C222 WIFI Pan/Tilt AI Home Security 4MP IP","reg":185,"regSale":null,"regSaleLbl":"","promo":139,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-320-20","mpn":"","bc":"","name":"מצלמה IP חיצונית TAPO C320WS 4MP","reg":215,"regSale":null,"regSaleLbl":"","promo":162,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-530-11","mpn":"","bc":"","name":"TAPO C530WS OUTDOOR PAN/TILT WIFI CAMERA 5MP","reg":307,"regSale":null,"regSaleLbl":"","promo":231,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-325-11","mpn":"","bc":"","name":"מצלמה OUTDOOR TAPO C325WB WIFI 4MP IP","reg":430,"regSale":null,"regSaleLbl":"","promo":323,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-210-11","mpn":"","bc":"","name":"TAPO D210 VIDEO DOORBALL CAMERA","reg":350,"regSale":null,"regSaleLbl":"","promo":263,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-246-01","mpn":"","bc":"","name":"מצלמת אבטחה חכמה עם שתי עדשות Tapo C246D 2K","reg":321,"regSale":null,"regSaleLbl":"","promo":241,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-410-11","mpn":"","bc":"","name":"מצלמה 3MP ופאנל סולארי Tapo C410 KIT","reg":323,"regSale":null,"regSaleLbl":"","promo":243,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • TAPO","sku":"99360-425-11","mpn":"","bc":"","name":"Tapo C425 KIT-מצלמה 4MP+פאנל סולארי","reg":415,"regSale":null,"regSaleLbl":"","promo":312,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-545-02","mpn":"","bc":"","name":"נתב Archer Air R5 AX3000","reg":461,"regSale":null,"regSaleLbl":"","promo":346,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-054-00","mpn":"","bc":"","name":"נתב אלחוטי ARCHER C54 AC1200","reg":131,"regSale":null,"regSaleLbl":"","promo":99,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-080-00","mpn":"","bc":"","name":"נתב ARCHER C80 AC1900 GIGA MIMO","reg":169,"regSale":null,"regSaleLbl":"","promo":127,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-745-00","mpn":"","bc":"","name":"נתב SIM +סול TL-M7450 AC 4G LTE","reg":599,"regSale":null,"regSaleLbl":"","promo":450,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-064-00","mpn":"","bc":"","name":"נתב ARCHER C64 AC1200 MU-MIMO","reg":161,"regSale":null,"regSaleLbl":"","promo":121,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-720-05","mpn":"","bc":"","name":"נתב SIM +סול TL-M7200 150 4G LTE","reg":269,"regSale":null,"regSaleLbl":"","promo":202,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-640-01","mpn":"","bc":"","name":"נתב אלחוט MR6400 A 4G SIM 300MBP","reg":323,"regSale":null,"regSaleLbl":"","promo":243,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-300-20","mpn":"","bc":"","name":"נתב TL-WR3002X WIFI-6","reg":330,"regSale":null,"regSaleLbl":"","promo":248,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-080-06","mpn":"","bc":"","name":"נתב ARCHER AX80 AX6000 WI-FI 2.5GWAN 6","reg":821,"regSale":null,"regSaleLbl":"","promo":616,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-505-01","mpn":"","bc":"","name":"נתב Archer MR505 AC1200 4G+ Cat6","reg":453,"regSale":null,"regSaleLbl":"","promo":340,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-400-02","mpn":"","bc":"","name":"נתב סל ARCHER MR400 A AC1200 4G","reg":548,"regSale":null,"regSaleLbl":"","promo":411,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-650-10","mpn":"","bc":"","name":"נתב MR6500v 4G A SIM 300MB VOLTE","reg":399,"regSale":null,"regSaleLbl":"","promo":300,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-550-00","mpn":"","bc":"","name":"נתב Archer BE550 BE9300 WI-FI7","reg":1120,"regSale":null,"regSaleLbl":"","promo":840,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-090-90","mpn":"","bc":"","name":"נתב ARCHER GX90 AX6600 GAMING","reg":1105,"regSale":null,"regSaleLbl":"","promo":829,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-072-00","mpn":"","bc":"","name":"נתב ARCHER AX72 AX5400 WI-FI 6","reg":507,"regSale":null,"regSaleLbl":"","promo":381,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-055-01","mpn":"","bc":"","name":"נתב Wi-Fi 6 מהיר יציאת Archer AX55 Pro AX3000 2.5G","reg":436,"regSale":null,"regSaleLbl":"","promo":327,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-550-02","mpn":"","bc":"","name":"נתב BE9300 גיימינג בתקן Archer GE550 Wi-Fi 7","reg":1232,"regSale":null,"regSaleLbl":"","promo":924,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-450-02","mpn":"","bc":"","name":"נתב BE7200 בתקן Archer BE450 Wi-Fi 7","reg":855,"regSale":null,"regSaleLbl":"","promo":642,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-800-80","mpn":"","bc":"","name":"נתב Archer BE800 BE19000 Tri-Band WI-FI7 System","reg":2124,"regSale":null,"regSaleLbl":"","promo":1593,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • נתבים","sku":"99360-700-05","mpn":"","bc":"","name":"נתב BE15000 בתקן Archer BE700 Wi-Fi 7","reg":1610,"regSale":null,"regSaleLbl":"","promo":1208,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-050-01","mpn":"","bc":"","name":"אקסס 1 בארי DECO X50 AX3000 MESH","reg":323,"regSale":null,"regSaleLbl":"","promo":243,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-050-97","mpn":"","bc":"","name":"אקסס 1 בארי DECO X50-POE AX3000 MESH","reg":434,"regSale":null,"regSaleLbl":"","promo":326,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-020-10","mpn":"","bc":"","name":"אקסס 1 בארי DECO X20 AX1800 MESH","reg":332,"regSale":null,"regSaleLbl":"","promo":249,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-050-99","mpn":"","bc":"","name":"אקסס 3 בארי DECO X50-POE AX3000 MESH","reg":1243,"regSale":null,"regSaleLbl":"","promo":933,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-005-03","mpn":"","bc":"","name":"אקסס 3 באריזה DECO M5 MESH 1300","reg":766,"regSale":null,"regSaleLbl":"","promo":575,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-020-20","mpn":"","bc":"","name":"אקסס 2 בארי DECO X20 AX1800 MESH","reg":530,"regSale":null,"regSaleLbl":"","promo":398,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-025-01","mpn":"","bc":"","name":"מערכת ‎‎Mesh‎ Wi-Fi 7 במהירות ‎Deco BE25 ‎BE3600","reg":546,"regSale":null,"regSaleLbl":"","promo":410,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-025-02","mpn":"","bc":"","name":"מערכת ‎‎Mesh‎ Wi-Fi 7 במהירות ‎Deco BE25 ‎BE3600","reg":1079,"regSale":null,"regSaleLbl":"","promo":810,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-050-03","mpn":"","bc":"","name":"אקסס 3 בארי DECO X50 AX3000 MESH","reg":889,"regSale":null,"regSaleLbl":"","promo":667,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-020-03","mpn":"","bc":"","name":"אקסס 3 בארי DECO X20 AX1800 MESH","reg":680,"regSale":null,"regSaleLbl":"","promo":510,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-025-03","mpn":"","bc":"","name":"מערכת ‎‎Mesh‎ Wi-Fi 7 במהירות ‎Deco BE25 ‎BE3600","reg":1520,"regSale":null,"regSaleLbl":"","promo":1140,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-050-04","mpn":"","bc":"","name":"אקסס 1 באריזה DECO X50-5G AX3000 MESH LTE","reg":1719,"regSale":null,"regSaleLbl":"","promo":1290,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-061-02","mpn":"","bc":"","name":"אקסס 2 בארי DECO X60 V3.2 AX5400 MESH","reg":1073,"regSale":null,"regSaleLbl":"","promo":805,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-061-03","mpn":"","bc":"","name":"אקסס 3 בארי DECO X60 V3.2 AX5400 MESH","reg":1524,"regSale":null,"regSaleLbl":"","promo":1143,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-065-02","mpn":"","bc":"","name":"אקסס/ נתב DECO BE65 2 in pack BE9300 WI-FI7 MESH","reg":1973,"regSale":null,"regSaleLbl":"","promo":1480,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • DECO","sku":"99360-085-02","mpn":"","bc":"","name":"אקסס/ נתב DECO BE85 2 in pack BE19000 WI-FI7 MESH","reg":4219,"regSale":null,"regSaleLbl":"","promo":3165,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-020-21","mpn":"","bc":"","name":"כרטיס רשת Archer T2E PCI-e AC600","reg":77,"regSale":null,"regSaleLbl":"","promo":58,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-725-00","mpn":"","bc":"","name":"כרטיס ננו מהירות TL-WN725N 150","reg":36,"regSale":null,"regSaleLbl":"","promo":27,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-500-11","mpn":"","bc":"","name":"UB500 Plus Bluetooth USB Adapter","reg":37,"regSale":null,"regSaleLbl":"","promo":28,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-346-80","mpn":"","bc":"","name":"כרטיס רשת קווי TG-3468 PCI-E GIG","reg":40,"regSale":null,"regSaleLbl":"","promo":30,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-050-50","mpn":"","bc":"","name":"כרטיס TP UB500 Bluetooth 5.0 USB","reg":43,"regSale":null,"regSaleLbl":"","promo":33,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-022-00","mpn":"","bc":"","name":"כרטיס רש ARCHER T2U PLUS 600MBPS","reg":70,"regSale":null,"regSaleLbl":"","promo":53,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-822-00","mpn":"","bc":"","name":"כרטיס TP WN822N 300M 2T2R USB+AN","reg":57,"regSale":null,"regSaleLbl":"","promo":43,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-020-05","mpn":"","bc":"","name":"כרט.רש ARCHER T2U NANO AC600 USB","reg":70,"regSale":null,"regSaleLbl":"","promo":53,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-020-06","mpn":"","bc":"","name":"כרט.רש ARCHER T2UB NANO AC600 USB","reg":73,"regSale":null,"regSaleLbl":"","promo":55,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-820-04","mpn":"","bc":"","name":"כרטיס TP WN8200ND 300M 2T2 USB+AN","reg":74,"regSale":null,"regSaleLbl":"","promo":56,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-401-00","mpn":"","bc":"","name":"כרטיס TX401 10GIGA PCI-E","reg":399,"regSale":null,"regSaleLbl":"","promo":300,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-821-00","mpn":"","bc":"","name":"כרטיס TP WN821N 300M 2T2R USB","reg":43,"regSale":null,"regSaleLbl":"","promo":33,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-050-05","mpn":"","bc":"","name":"כרט TX50E AX3000 WIFI6 BT5 PCI-E","reg":223,"regSale":null,"regSaleLbl":"","promo":168,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-002-01","mpn":"","bc":"","name":"כרטיס TX201 2.5 GIGA PCI-E","reg":108,"regSale":null,"regSaleLbl":"","promo":81,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-042-00","mpn":"","bc":"","name":"כרטיס רשת ARCHER T4U PLUS 1300","reg":108,"regSale":null,"regSaleLbl":"","promo":81,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-040-02","mpn":"","bc":"","name":"כרטיס רשת ARCHER T4U 1300MBP USB","reg":96,"regSale":null,"regSaleLbl":"","promo":72,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-030-00","mpn":"","bc":"","name":"כרטיס TX3000E AX3000 WIFI6 PCI-E","reg":261,"regSale":null,"regSaleLbl":"","promo":196,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-033-01","mpn":"","bc":"","name":"כרטיס ARCHER T3U-NANO 1300MB USB","reg":88,"regSale":null,"regSaleLbl":"","promo":66,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • כרטיסי רשת","sku":"99360-200-20","mpn":"","bc":"","name":"כרטיס רשת ARCHER TX20UH 1800","reg":205,"regSale":null,"regSaleLbl":"","promo":154,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-202-02","mpn":"","bc":"","name":"מעביר TL-UE200 LAN USB2 T 10/100","reg":40,"regSale":null,"regSaleLbl":"","promo":30,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-040-03","mpn":"","bc":"","name":"מתאם TP UC400 USB-C TO USB3.0","reg":47,"regSale":null,"regSaleLbl":"","promo":36,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-600-02","mpn":"","bc":"","name":"מתאם USB 2.0 Wi-Fi קומפקטי Archer T600U Nano","reg":50,"regSale":null,"regSaleLbl":"","promo":38,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-300-00","mpn":"","bc":"","name":"מתאם רשת TL-UE300 LAN USB3 TO GIGA","reg":60,"regSale":null,"regSaleLbl":"","promo":45,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-400-00","mpn":"","bc":"","name":"מפצל UH400 USB3 4PORT","reg":62,"regSale":null,"regSaleLbl":"","promo":47,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-300-01","mpn":"","bc":"","name":"מעביר TL-UE300C TYPE-C TO RJ45","reg":88,"regSale":null,"regSaleLbl":"","promo":66,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-020-07","mpn":"","bc":"","name":"מתאם USB 2.0 Wi-Fi 6 קומפקטי Archer TX20U Nano","reg":99,"regSale":null,"regSaleLbl":"","promo":75,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-330-00","mpn":"","bc":"","name":"מעביר TL-UE330 USB3*3 TO GIGA","reg":105,"regSale":null,"regSaleLbl":"","promo":79,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-302-04","mpn":"","bc":"","name":"מתאם רשת UE302C USB Type-C to 2.5 Gigabit Ethernet","reg":116,"regSale":null,"regSaleLbl":"","promo":87,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-220-01","mpn":"","bc":"","name":"ממיר אופטי MC220L SFP -GIGA LAN","reg":76,"regSale":null,"regSaleLbl":"","promo":57,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-020-08","mpn":"","bc":"","name":"רכזת USB-C מתקדמת UH7020C USB Type-C 7-in-1","reg":146,"regSale":null,"regSaleLbl":"","promo":110,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-720-01","mpn":"","bc":"","name":"מפצל UH720 USB3 7PORT 2P-CHARGE","reg":154,"regSale":null,"regSaleLbl":"","promo":116,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-330-01","mpn":"","bc":"","name":"UE330C מעביר USB TYPE-C 3 PORT","reg":108,"regSale":null,"regSaleLbl":"","promo":81,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-020-11","mpn":"","bc":"","name":"רכזת USB-C חכמה מוקטן UH3020C USB Type-C 3-in-1 Hub","reg":100,"regSale":null,"regSaleLbl":"","promo":75,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-210-01","mpn":"","bc":"","name":"ממיר אופטי MC210CS S.M- GIG","reg":162,"regSale":null,"regSaleLbl":"","promo":122,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-120-03","mpn":"","bc":"","name":"מתאם USB-C חכם עם 9 יציאות UH9120C","reg":169,"regSale":null,"regSaleLbl":"","promo":127,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-020-09","mpn":"","bc":"","name":"רכזת USB-C מתקדמת UH5020C USB Type-C 5-in-1 Hub","reg":122,"regSale":null,"regSaleLbl":"","promo":92,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-120-06","mpn":"","bc":"","name":"רכזת USB-C מתקדמת UH6120C USB Type-C 6-in-1 Hub","reg":160,"regSale":null,"regSaleLbl":"","promo":120,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • רכזות/ מתאמים","sku":"99360-050-06","mpn":"","bc":"","name":"מתאם USB 3.0 Wi-Fi 6E מתקדם בתקן Archer TXE50UH AXE3000","reg":169,"regSale":null,"regSaleLbl":"","promo":127,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-015-06","mpn":"","bc":"","name":"מתג 5 מהירות LS1005G 5P 1000","reg":59,"regSale":null,"regSaleLbl":"","promo":45,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-05","mpn":"","bc":"","name":"מתג 5 מהירות SG1005D 5P 1000","reg":70,"regSale":null,"regSaleLbl":"","promo":53,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-55","mpn":"","bc":"","name":"מתג מתכת LS105G 5PORT GIGA LW","reg":71,"regSale":null,"regSaleLbl":"","promo":54,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-115-56","mpn":"","bc":"","name":"מתג מנוהל TL-SG105MPE GIGA POE+ 4+1 120W","reg":499,"regSale":null,"regSaleLbl":"","promo":375,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-07","mpn":"","bc":"","name":"מתג שולחני מתכתי TL-SG105S 5-Port Gigabit Desktop Switch","reg":77,"regSale":null,"regSaleLbl":"","promo":58,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-018-10","mpn":"","bc":"","name":"מתג 8 מהירות LS1008G 8P 1000","reg":82,"regSale":null,"regSaleLbl":"","promo":62,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-00","mpn":"","bc":"","name":"מתג מתכת קטן SG105 5PORT GIGA","reg":88,"regSale":null,"regSaleLbl":"","promo":66,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-108-08","mpn":"","bc":"","name":"מתג 8 מהירות SG1008D 8P 1000","reg":97,"regSale":null,"regSaleLbl":"","promo":73,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-08","mpn":"","bc":"","name":"מתג שולחני מנוהל לייט מתכת מהירות SG105E 5 P 1000","reg":108,"regSale":null,"regSaleLbl":"","promo":81,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-018-09","mpn":"","bc":"","name":"מתג מתכת 8 מהירות LS108G 8P 1000","reg":117,"regSale":null,"regSaleLbl":"","promo":88,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-25","mpn":"","bc":"","name":"מתג ++PoE מתכתי עם 5 פורטים TL-SG105PP-M2 2.5G","reg":591,"regSale":null,"regSaleLbl":"","promo":444,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-108-00","mpn":"","bc":"","name":"מתג מתכת קטן SG108 8PORT GIGA","reg":137,"regSale":null,"regSaleLbl":"","promo":103,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-06","mpn":"","bc":"","name":"מתג שולחני 5 פורט +LS105GP 5-Port Gigabit Switch 4-PoE","reg":146,"regSale":null,"regSaleLbl":"","promo":110,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-04","mpn":"","bc":"","name":"מתג מתכת שולחני SG1005P 1+4POE 63W GIGA","reg":177,"regSale":null,"regSaleLbl":"","promo":133,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-116-19","mpn":"","bc":"","name":"מתג שולחני מנוהל לייט מתכת מהירות SG1016DE 16 P 1000","reg":384,"regSale":null,"regSaleLbl":"","promo":288,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-118-08","mpn":"","bc":"","name":"מתג מתכת מהי SG1008 8P 1000","reg":200,"regSale":null,"regSaleLbl":"","promo":150,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-115-55","mpn":"","bc":"","name":"מתג TL-SG105PE GIGA POE+ 4+1 65W","reg":231,"regSale":null,"regSaleLbl":"","promo":174,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-116-17","mpn":"","bc":"","name":"מתג מהירות SG1016D 13' 16 P 1000","reg":246,"regSale":null,"regSaleLbl":"","promo":185,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-09","mpn":"","bc":"","name":"מתג שולחני מתכתי TL-SG105S-M2 5-Port 2.5 Multi-Gigabit","reg":254,"regSale":null,"regSaleLbl":"","promo":191,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-108-04","mpn":"","bc":"","name":"מתג SG1008P GIGA POE 4+4 55W","reg":261,"regSale":null,"regSaleLbl":"","promo":196,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-118-88","mpn":"","bc":"","name":"מתג TL-SG108PE GIGA POE 4+4 55W","reg":277,"regSale":null,"regSaleLbl":"","promo":208,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-116-01","mpn":"","bc":"","name":"מתג שולחני TL-SG116 16P 1G","reg":330,"regSale":null,"regSaleLbl":"","promo":248,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-116-18","mpn":"","bc":"","name":"מתג שולחני מנוהל לייט מתכת מהירות SG116E 16 P 1000","reg":353,"regSale":null,"regSaleLbl":"","promo":265,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-121-01","mpn":"","bc":"","name":"מתג שולחני SG1210P 8POE+ GIGA SFP","reg":392,"regSale":null,"regSaleLbl":"","promo":294,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-124-25","mpn":"","bc":"","name":"מתג מהירות SG1024D 13' 24P 1000","reg":461,"regSale":null,"regSaleLbl":"","promo":346,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-15","mpn":"","bc":"","name":"מתג מתכת SG105-M2 5port*2.5Gbps","reg":583,"regSale":null,"regSaleLbl":"","promo":438,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-116-16","mpn":"","bc":"","name":"מתג מהירות SG1016 16 P 1000","reg":330,"regSale":null,"regSaleLbl":"","promo":248,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-105-10","mpn":"","bc":"","name":"מתג מתכת לארון 'SX105 5P*10G 13","reg":1335,"regSale":null,"regSaleLbl":"","promo":1002,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-108-15","mpn":"","bc":"","name":"מתג מתכת SG108-M2 8port*2.5Gbps","reg":645,"regSale":null,"regSaleLbl":"","promo":484,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-116-20","mpn":"","bc":"","name":"מתג שולחני מתכת מהירות TL-SG116P GIGA 16POE+ 120W","reg":767,"regSale":null,"regSaleLbl":"","promo":576,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-216-16","mpn":"","bc":"","name":"מתג SG1016PE POE+ 8+8 110W","reg":767,"regSale":null,"regSaleLbl":"","promo":576,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-142-80","mpn":"","bc":"","name":"מתג TL-SG1428PE 24POE+ 250W 2SFP","reg":1396,"regSale":null,"regSaleLbl":"","promo":1047,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-100-80","mpn":"","bc":"","name":"מתג מתכת לארון 'SX1008 8P*10G 13","reg":1918,"regSale":null,"regSaleLbl":"","promo":1439,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • מתגים","sku":"99360-124-26","mpn":"","bc":"","name":"מתג מנוהל לייט מהירות SG1024DE 13' 24P 1000","reg":613,"regSale":null,"regSaleLbl":"","promo":460,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • אקסס פוינטים/מגדילי טווח","sku":"99360-855-00","mpn":"","bc":"","name":"אקסס.פוי 2 אנ TL-WA855RE 300MBP","reg":88,"regSale":null,"regSaleLbl":"","promo":66,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • אקסס פוינטים/מגדילי טווח","sku":"99360-850-00","mpn":"","bc":"","name":"אקסס.פוינט TL-WA850RE 300MBPS","reg":76,"regSale":null,"regSaleLbl":"","promo":57,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • אקסס פוינטים/מגדילי טווח","sku":"99360-305-02","mpn":"","bc":"","name":"אקסס פוינט RE305 1200MBPS AC","reg":146,"regSale":null,"regSaleLbl":"","promo":110,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • אקסס פוינטים/מגדילי טווח","sku":"99360-200-75","mpn":"","bc":"","name":"אקסס פוינט RE200 750MBPS AC","reg":102,"regSale":null,"regSaleLbl":"","promo":77,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • אקסס פוינטים/מגדילי טווח","sku":"99360-205-01","mpn":"","bc":"","name":"מגדיל טווח Wi-Fi מתקדם RE205 AC750","reg":148,"regSale":null,"regSaleLbl":"","promo":111,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • אקסס פוינטים/מגדילי טווח","sku":"99360-220-04","mpn":"","bc":"","name":"מגדיל טווח אלחוטי עם שלוש אנטנות פנימיות RE220 AC750 Mesh","reg":139,"regSale":null,"regSaleLbl":"","promo":105,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • אקסס פוינטים/מגדילי טווח","sku":"99360-705-05","mpn":"","bc":"","name":"אקסס פוינט RE705X AX3000 WI-FI6","reg":415,"regSale":null,"regSaleLbl":"","promo":312,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"TP-LINK","cat":"TP-LINK • אקסס פוינטים/מגדילי טווח","sku":"99360-605-05","mpn":"","bc":"","name":"אקסס פוינט RE605X AX1800 WI-FI6","reg":354,"regSale":null,"regSaleLbl":"","promo":266,"promoLbl":"מבצע נובמבר","ranges":[["2026-11-04","2026-12-05"]],"dates":"04/11–05/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-001-10","mpn":"WDBYVG0010BBK-WESN","bc":"","name":"My Passport 1TB Black","reg":515,"regSale":null,"regSaleLbl":"","promo":436,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-002-10","mpn":"WDBYVG0020BBK-WESN","bc":"","name":"My Passport 2TB Black","reg":569,"regSale":null,"regSaleLbl":"","promo":482,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-002-20","mpn":"WDBYVG0020BBL-WESN","bc":"","name":"My Passport 2TB Blue","reg":569,"regSale":null,"regSaleLbl":"","promo":482,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-002-30","mpn":"WDBYVG0020BRD-WESN","bc":"","name":"My Passport 2TB Red","reg":569,"regSale":null,"regSaleLbl":"","promo":482,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-002-40","mpn":"WDBYVG0020BWT-WESN","bc":"","name":"My Passport 2TB White","reg":null,"regSale":null,"regSaleLbl":"","promo":null,"promoLbl":"מבצע ללא מע\"מ","ranges":[],"dates":"","stock":"סוף דגם","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-004-10","mpn":"WDBPKJ0040BBK-WESN","bc":"","name":"My Passport 4TB Black","reg":849,"regSale":null,"regSaleLbl":"","promo":719,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-004-20","mpn":"WDBPKJ0040BBL-WESN","bc":"","name":"My Passport 4TB Blue","reg":849,"regSale":null,"regSaleLbl":"","promo":719,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-004-30","mpn":"WDBPKJ0040BRD-WESN","bc":"","name":"My Passport 4TB Red","reg":849,"regSale":null,"regSaleLbl":"","promo":719,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-004-40","mpn":"WDBPKJ0040BWT-WESN","bc":"","name":"My Passport 4TB White","reg":null,"regSale":null,"regSaleLbl":"","promo":null,"promoLbl":"מבצע ללא מע\"מ","ranges":[],"dates":"","stock":"סוף דגם","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-005-10","mpn":"WDBPKJ0050BBK-WESN","bc":"","name":"My Passport 5TB Black","reg":959,"regSale":null,"regSaleLbl":"","promo":813,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-005-20","mpn":"WDBPKJ0050BBL-WESN","bc":"","name":"My Passport 5TB Blue","reg":959,"regSale":null,"regSaleLbl":"","promo":813,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-005-40","mpn":"WDBPKJ0050BWT-WESN","bc":"","name":"My Passport 5TB White","reg":959,"regSale":null,"regSaleLbl":"","promo":813,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-005-30","mpn":"WDBPKJ0050BRD-WESN","bc":"","name":"My Passport 5TB Red","reg":959,"regSale":null,"regSaleLbl":"","promo":813,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-006-10","mpn":"WDBR9S0060BBK-WESN","bc":"","name":"My Passport 6TB Black","reg":1139,"regSale":null,"regSaleLbl":"","promo":965,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-006-20","mpn":"WDBR9S0060BBL-WESN","bc":"","name":"My Passport 6TB Blue","reg":1139,"regSale":null,"regSaleLbl":"","promo":965,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-006-30","mpn":"WDBR9S0060BRD-WESN","bc":"","name":"My Passport 6TB Red","reg":1139,"regSale":null,"regSaleLbl":"","promo":965,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39174-006-40","mpn":"WDBR9S0060BWT-WESN","bc":"","name":"My Passport 6TB White","reg":1139,"regSale":null,"regSaleLbl":"","promo":965,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39175-001-10","mpn":"WDBG6U0010BBK-WESN","bc":"","name":"My Passport USB-C 1TB Black","reg":579,"regSale":null,"regSaleLbl":"","promo":491,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39175-002-10","mpn":"WDBG6U0020BBK-WESN","bc":"","name":"My Passport USB-C 2TB Black","reg":659,"regSale":null,"regSaleLbl":"","promo":558,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39175-004-10","mpn":"WDBGES0040BBK-WESN","bc":"","name":"My Passport USB-C 4TB Black","reg":979,"regSale":null,"regSaleLbl":"","promo":830,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39175-005-10","mpn":"WDBGES0050BBK-WESN","bc":"","name":"My Passport USB-C 5TB Black","reg":1099,"regSale":null,"regSaleLbl":"","promo":931,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39175-006-10","mpn":"WDBTBU0060BBK-WESN","bc":"","name":"My Passport USB-C 6TB Black","reg":1299,"regSale":null,"regSaleLbl":"","promo":1101,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39179-002-01","mpn":"WDBWML0020BGY-WESN","bc":"","name":"My Passport 2TB Grey USB-C","reg":629,"regSale":null,"regSaleLbl":"","promo":533,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39179-004-01","mpn":"WDBRMD0040BGY-WESN","bc":"","name":"My Passport 4TB Grey USB-C","reg":929,"regSale":null,"regSaleLbl":"","promo":787,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39179-005-01","mpn":"WDBRMD0050BGY-WESN","bc":"","name":"My Passport 5TB Grey USB-C","reg":1039,"regSale":null,"regSaleLbl":"","promo":881,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39179-006-01","mpn":"WDBY3J0060BGY-WESN","bc":"","name":"My Passport 6TB Grey USB-C","reg":1229,"regSale":null,"regSaleLbl":"","promo":1042,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39172-002-20","mpn":"WDBC3C0020BBL-WESN","bc":"","name":"My Passport Ultra 2TB Blue","reg":629,"regSale":null,"regSaleLbl":"","promo":533,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39172-002-62","mpn":"WDBC3C0020BGD-WESN","bc":"","name":"My Passport Ultra 2TB gold - Por","reg":629,"regSale":null,"regSaleLbl":"","promo":533,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39172-002-11","mpn":"WDBC3C0020BSL-WESN","bc":"","name":"My Passport Ultra 2TB Silver","reg":629,"regSale":null,"regSaleLbl":"","promo":533,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39172-004-11","mpn":"WDBFTM0040BSL-WESN","bc":"","name":"My Passport Ultra 4TB Silver","reg":919,"regSale":null,"regSaleLbl":"","promo":779,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39172-004-20","mpn":"WDBFTM0040BBL-WESN","bc":"","name":"My Passport Ultra 4TB Blue","reg":919,"regSale":null,"regSaleLbl":"","promo":779,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39172-004-62","mpn":"WDBFTM0040BGD-WESN","bc":"","name":"My Passport Ultra 4TB Gold","reg":919,"regSale":null,"regSaleLbl":"","promo":779,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39172-005-20","mpn":"WDBFTM0050BBL-WESN","bc":"","name":"My Passport Ultra 5TB Blue","reg":1019,"regSale":null,"regSaleLbl":"","promo":864,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39169-006-20","mpn":"WDBEJA0060BBL-WESN","bc":"","name":"My Passport Ultra 6TB Blue","reg":1199,"regSale":null,"regSaleLbl":"","promo":1016,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39173-004-11","mpn":"WDBPMV0040BSL-WESN","bc":"","name":"My Passport Ultra for Mac 4TB Silver","reg":919,"regSale":null,"regSaleLbl":"","promo":779,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39173-005-11","mpn":"WDBPMV0050BSL-WESN","bc":"","name":"My Passport Ultra for Mac 5TB Silver","reg":1019,"regSale":null,"regSaleLbl":"","promo":864,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39173-006-11","mpn":"WDBGKC0060BSL-WESN","bc":"","name":"My Passport Ultra for Mac 6TB Silver","reg":1199,"regSale":null,"regSaleLbl":"","promo":1016,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39166-002-04","mpn":"WDBA2F0020BBL-WESN","bc":"","name":"My Passport for Mac 2TB Blue","reg":629,"regSale":null,"regSaleLbl":"","promo":533,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39166-004-04","mpn":"WDBA2F0040BBL-WESN","bc":"","name":"My Passport for Mac 4TB Blue","reg":879,"regSale":null,"regSaleLbl":"","promo":745,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39166-005-04","mpn":"WDBA2F0050BBL-WESN","bc":"","name":"My Passport for Mac 5TB Blue","reg":959,"regSale":null,"regSaleLbl":"","promo":813,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39166-006-04","mpn":"WDBA2F0060BBL-WESN","bc":"","name":"My Passport for Mac 6TB Blue","reg":1109,"regSale":null,"regSaleLbl":"","promo":940,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39200-001-00","mpn":"WDBDTV0010BBK-WESN","bc":"","name":"WD Elements Portable 1TB USB-C","reg":549,"regSale":null,"regSaleLbl":"","promo":465,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39200-002-00","mpn":"WDBDTV0020BBK-WESN","bc":"","name":"WD Elements Portable 2TB USB-C","reg":629,"regSale":null,"regSaleLbl":"","promo":533,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39200-004-00","mpn":"WDBLSS0040BBK-WESN","bc":"","name":"WD Elements Portable 4TB USB-C","reg":959,"regSale":null,"regSaleLbl":"","promo":813,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39200-005-00","mpn":"WDBLSS0050BBK-WESN","bc":"","name":"WD Elements Portable 5TB USB-C","reg":1069,"regSale":null,"regSaleLbl":"","promo":906,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39200-006-00","mpn":"WDBLSS0060BBK-WESN","bc":"","name":"WD Elements Portable 6TB USB-C","reg":1269,"regSale":null,"regSaleLbl":"","promo":1075,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39199-001-01","mpn":"WDBUZG0010BBK-WESN","bc":"","name":"WD Elements Portable 1TB USB 3.0","reg":499,"regSale":null,"regSaleLbl":"","promo":423,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39199-002-02","mpn":"WDBU6Y0020BBK-WESN","bc":"","name":"WD Elements Portable 2TB USB 3.0","reg":549,"regSale":null,"regSaleLbl":"","promo":465,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39199-004-01","mpn":"WDBU6Y0040BBK-WESN","bc":"","name":"WD Elements Portable 4TB USB 3.0","reg":829,"regSale":null,"regSaleLbl":"","promo":703,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39199-005-01","mpn":"WDBU6Y0050BBK-WESN","bc":"","name":"WD Elements Portable 5TB USB 3.0","reg":939,"regSale":null,"regSaleLbl":"","promo":796,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Portable HDD","sku":"39199-006-01","mpn":"WDBHJS0060BBK-WESN","bc":"","name":"WD Elements Portable 6TB USB 3.0","reg":1119,"regSale":null,"regSaleLbl":"","promo":948,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-006-02","mpn":"WDBBGB0060HBK-EESN","bc":"","name":"My Book 6TB","reg":1179,"regSale":null,"regSaleLbl":"","promo":999,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-008-02","mpn":"WDBBGB0080HBK-EESN","bc":"","name":"My Book 8TB","reg":1429,"regSale":null,"regSaleLbl":"","promo":1211,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-012-02","mpn":"WDBBGB0120HBK-EESN","bc":"","name":"My Book 12TB","reg":1969,"regSale":null,"regSaleLbl":"","promo":1669,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-014-02","mpn":"WDBBGB0140HBK-EESN","bc":"","name":"My Book 14TB","reg":2189,"regSale":null,"regSaleLbl":"","promo":1855,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-016-02","mpn":"WDBBGB0160HBK-EESN","bc":"","name":"My Book 16TB","reg":2369,"regSale":null,"regSaleLbl":"","promo":2008,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-018-02","mpn":"WDBBGB0180HBK-EESN","bc":"","name":"My Book 18TB","reg":2679,"regSale":null,"regSaleLbl":"","promo":2270,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-022-02","mpn":"WDBBGB0220HBK-EESN","bc":"","name":"My Book 22TB","reg":4349,"regSale":null,"regSaleLbl":"","promo":3686,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-024-02","mpn":"WDBBGB0240HBK-EESN","bc":"","name":"My Book 24TB","reg":4799,"regSale":null,"regSaleLbl":"","promo":4067,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-026-02","mpn":"WDBBGB0260HBK-EESN","bc":"","name":"My Book 26TB","reg":5319,"regSale":null,"regSaleLbl":"","promo":4508,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-028-03","mpn":"WDBFBE0280JBK-EESN","bc":"","name":"My Book Duo 28TB","reg":5159,"regSale":null,"regSaleLbl":"","promo":4372,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-036-03","mpn":"WDBFBE0360JBK-EESN","bc":"","name":"My Book Duo 36TB","reg":6529,"regSale":null,"regSaleLbl":"","promo":5533,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"WD","cat":"WD • Desktop HDD","sku":"39115-044-03","mpn":"WDBFBE0440JBK-EESN","bc":"","name":"My Book Duo 44TB","reg":7799,"regSale":null,"regSaleLbl":"","promo":6609,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-19","2026-12-08"]],"dates":"19/11–08/12","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenRun","sku":"41209-652-49","mpn":"","bc":"810092678922","name":"אוז ספו עצם SHOKZ OPENRUN Pro 2 שחור","reg":699,"regSale":null,"regSaleLbl":"","promo":589,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenRun","sku":"41209-652-50","mpn":"","bc":"810092678939","name":"אוז ספו עצם SHOKZ OPENRUN Pro 2 כתום","reg":699,"regSale":null,"regSaleLbl":"","promo":589,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenRun","sku":"41209-652-51","mpn":"","bc":"810092679639","name":"אוז ספו עצם SHOKZ OPENRUN Pro 2 mini שחור","reg":699,"regSale":null,"regSaleLbl":"","promo":589,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"יח בודדות","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenRun","sku":"41209-652-52","mpn":"","bc":"810092679646","name":"אוז ספו עצם SHOKZ OPENRUN Pro 2 mini כתום","reg":699,"regSale":null,"regSaleLbl":"","promo":589,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenRun","sku":"41209-652-53","mpn":"","bc":"810092679837","name":"אוז ספו עצם SHOKZ OPENRUN USB-C שחור","reg":499,"regSale":null,"regSaleLbl":"","promo":422,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenRun","sku":"41209-652-54","mpn":"","bc":"810092679844","name":"אוז ספו עצם SHOKZ OPENRUN USB-C כחול","reg":499,"regSale":null,"regSaleLbl":"","promo":422,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenRun","sku":"41209-652-55","mpn":"","bc":"810092679868","name":"אוז ספו עצם SHOKZ OPENRUN MINI USB-C שחור","reg":499,"regSale":null,"regSaleLbl":"","promo":422,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"אין במלאי","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenMove","sku":"41209-652-29","mpn":"","bc":"850033806298","name":"אוז ספו עצם SHOKZ OPENMOVE אפור","reg":399,"regSale":null,"regSaleLbl":"","promo":339,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenMove","sku":"41209-652-30","mpn":"","bc":"850033806267","name":"אוז ספו עצם SHOKZ OPENMOVE כחול","reg":399,"regSale":null,"regSaleLbl":"","promo":339,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"אזל","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenSwim","sku":"41209-652-47","mpn":"","bc":"810092678595","name":"אוז עצם לשחיה SHOKZ OPENSWIM PRO BT+MP3 אפור","reg":799,"regSale":null,"regSaleLbl":"","promo":679,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenSwim","sku":"41209-652-48","mpn":"","bc":"810092678601","name":"אוז עצם לשחיה SHOKZ OPENSWIM PRO BT+MP3 אדום","reg":799,"regSale":null,"regSaleLbl":"","promo":679,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenFit","sku":"41209-652-44","mpn":"","bc":"810092678663","name":"אוז SHOKZ OPENFIT AIR OPEN-EAR שחור","reg":399,"regSale":null,"regSaleLbl":"","promo":339,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"אזל","note":"חיסול"},{"src":"SHOKZ","cat":"SHOKZ • OpenFit","sku":"41209-652-46","mpn":"","bc":"810092678687","name":"אוז SHOKZ OPENFIT AIR OPEN-EAR ורוד","reg":399,"regSale":null,"regSaleLbl":"","promo":339,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"אזל","note":"חיסול"},{"src":"SHOKZ","cat":"SHOKZ • OpenFit","sku":"41209-652-39","mpn":"","bc":"810092675761","name":"אוז SHOKZ OPENFIT OPEN-EAR בז'","reg":499,"regSale":null,"regSaleLbl":"","promo":422,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"אזל","note":"חיסול"},{"src":"SHOKZ","cat":"SHOKZ • OpenFit","sku":"41209-652-57","mpn":"","bc":"810160666974","name":"אוז SHOKZ OPENFIT 2 OPEN-EAR בז'","reg":599,"regSale":null,"regSaleLbl":"","promo":509,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"אזל","note":"חיסול"},{"src":"SHOKZ","cat":"SHOKZ • OpenFit","sku":"41209-652-58","mpn":"","bc":"810173482424","name":"אוז SHOKZ OPENFIT 2 PLUS OPEN-EAR שחור","reg":799,"regSale":null,"regSaleLbl":"","promo":679,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"יח בודדות","note":""},{"src":"SHOKZ","cat":"SHOKZ • OpenFit","sku":"41209-652-59","mpn":"","bc":"810173482431","name":"אוז SHOKZ OPENFIT 2 PLUS OPEN-EAR אפור","reg":799,"regSale":null,"regSaleLbl":"","promo":679,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • DOTS","sku":"41209-652-60","mpn":"","bc":"810160666288","name":"אוז SHOKZ DOTS אפור","reg":799,"regSale":null,"regSaleLbl":"","promo":679,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""},{"src":"SHOKZ","cat":"SHOKZ • DOTS","sku":"41209-652-61","mpn":"","bc":"810160666295","name":"אוז SHOKZ DOTS שחור","reg":799,"regSale":null,"regSaleLbl":"","promo":679,"promoLbl":"מבצע ללא מע\"מ","ranges":[["2026-11-04","2026-11-11"],["2026-11-26","2026-11-30"]],"dates":"04/11–11/11 וגם 26/11–30/11","stock":"","note":""}];
+
+// Live local date in YYYY-MM-DD (Israel store device clock)
+function getTodayISO() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function getTodayDisplay() {
+    const now = new Date();
+    const d = String(now.getDate()).padStart(2, '0');
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const y = now.getFullYear();
+    return `${d}/${m}/${y}`;
+}
+
+const TODAY_ISO = getTodayISO();
+document.getElementById('todayDatePill').textContent = `תאריך בדיקה: ${getTodayDisplay()}`;
+
+function isPromoActiveToday(item) {
+    if (!item.promo || !item.ranges || !item.ranges.length) return false;
+    for (const [start, end] of item.ranges) {
+        if (TODAY_ISO >= start && TODAY_ISO <= end) return true;
     }
+    return false;
+}
+
+// Precompute search index & active flag once on load
+const ENRICHED = PRODUCTS.map(p => {
+    const active = isPromoActiveToday(p);
+    const bcClean = (p.bc || '').replace(/^0+/, '');
+    const skuClean = (p.sku || '').replace(/-/g, '').toLowerCase();
+    const mpnClean = (p.mpn || '').replace(/-/g, '').toLowerCase();
+    const searchBlob = `${p.name} ${p.cat} ${p.src} ${p.bc} ${bcClean} ${p.sku} ${skuClean} ${p.mpn} ${mpnClean} ${p.note}`.toLowerCase();
+    return { ...p, active, bcClean, searchBlob };
+});
+
+let activeFilter = 'ALL';
+
+function formatILS(num) {
+    if (num === null || num === undefined) return '';
+    return '₪' + Number(num).toLocaleString('he-IL');
+}
+
+function escapeHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function buildFilterChips() {
+    const counts = {
+        ALL: ENRICHED.length,
+        ACTIVE_PROMO: ENRICHED.filter(p => p.active).length,
+        'נובמבר סייל': ENRICHED.filter(p => p.src === 'נובמבר סייל').length,
+        'TP-LINK': ENRICHED.filter(p => p.src === 'TP-LINK').length,
+        'WD': ENRICHED.filter(p => p.src === 'WD').length,
+        'SHOKZ': ENRICHED.filter(p => p.src === 'SHOKZ').length
+    };
+    const chips = [
+        { id: 'ALL', label: `הכל (${counts.ALL})` },
+        { id: 'ACTIVE_PROMO', label: `✓ מבצע תקף היום (${counts.ACTIVE_PROMO})`, cls: 'active-promo-chip' },
+        { id: 'נובמבר סייל', label: `נובמבר סייל (${counts['נובמבר סייל']})` },
+        { id: 'TP-LINK', label: `TP-LINK (${counts['TP-LINK']})` },
+        { id: 'WD', label: `WD (${counts['WD']})` },
+        { id: 'SHOKZ', label: `SHOKZ (${counts['SHOKZ']})` }
+    ];
+    const bar = document.getElementById('filtersBar');
+    bar.innerHTML = '';
+    for (const c of chips) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `filter-chip ${c.cls || ''} ${activeFilter === c.id ? 'active' : ''}`;
+        btn.textContent = c.label;
+        btn.onclick = () => {
+            activeFilter = c.id;
+            buildFilterChips();
+            renderList();
+        };
+        bar.appendChild(btn);
+    }
+}
+
+function matchesQuery(item, rawQuery) {
+    const q = rawQuery.trim().toLowerCase();
+    if (!q) return true;
+    // Direct numeric barcode match (handles UPC-A 12-digit vs EAN-13 leading zero)
+    const digitsOnly = q.replace(/\s+/g, '');
+    if (/^\d{6,}$/.test(digitsOnly)) {
+        const noZero = digitsOnly.replace(/^0+/, '');
+        if (item.bc && (item.bc === digitsOnly || item.bcClean === noZero || item.bc.includes(digitsOnly) || item.bcClean.includes(noZero))) {
+            return true;
+        }
+    }
+    // Multi-word AND search across name, barcode, SKU (with/without dashes), MPN, category
+    const tokens = q.split(/\s+/).filter(Boolean);
+    return tokens.every(tok => {
+        const tokNoDash = tok.replace(/-/g, '');
+        return item.searchBlob.includes(tok) || (tokNoDash && item.searchBlob.includes(tokNoDash));
+    });
+}
+
+function renderList() {
+    const input = document.getElementById('searchInput');
+    const q = input.value;
+    const clearBtn = document.getElementById('clearBtn');
+    clearBtn.classList.toggle('visible', q.length > 0);
+
+    const filtered = ENRICHED.filter(item => {
+        if (activeFilter === 'ACTIVE_PROMO' && !item.active) return false;
+        if (activeFilter !== 'ALL' && activeFilter !== 'ACTIVE_PROMO' && item.src !== activeFilter) return false;
+        return matchesQuery(item, q);
+    });
+
+    const listEl = document.getElementById('productList');
+    const emptyEl = document.getElementById('emptyState');
+    const countEl = document.getElementById('resultsCount');
+
+    countEl.textContent = `מציג ${filtered.length} מתוך ${ENRICHED.length} מוצרים`;
+
+    if (filtered.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+    }
+    emptyEl.style.display = 'none';
+
+    const frag = document.createDocumentFragment();
+    for (const p of filtered) {
+        const li = document.createElement('li');
+        const isOut = p.stock === 'אזל' || p.stock === 'אין מלאי' || p.stock === 'סוף דגם';
+        li.className = 'product-card' + (isOut ? ' is-out' : '');
+
+        // Tags
+        let tagsHtml = `<span class="tag tag-cat">${escapeHtml(p.cat)}</span>`;
+        if (p.stock === 'אזל' || p.stock === 'אין מלאי' || p.stock === 'סוף דגם') {
+            tagsHtml += `<span class="tag tag-out">${escapeHtml(p.stock)}</span>`;
+        } else if (p.stock === 'יח בודדות') {
+            tagsHtml += `<span class="tag tag-low">יח' בודדות</span>`;
+        }
+        if (p.note) {
+            if (p.note.includes('מתנה')) {
+                tagsHtml += `<span class="tag tag-gift">🎁 ${escapeHtml(p.note)}</span>`;
+            } else if (p.note.includes('חיסול')) {
+                tagsHtml += `<span class="tag tag-low">${escapeHtml(p.note)}</span>`;
+            } else {
+                tagsHtml += `<span class="tag tag-note">${escapeHtml(p.note)}</span>`;
+            }
+        }
+
+        // Codes row (barcode prominently first if available)
+        let codesHtml = '';
+        if (p.bc) {
+            codesHtml += `<span class="code-item">${escapeHtml(p.bc)}<span class="code-lbl"> :ברקוד</span></span>`;
+        }
+        if (p.sku) {
+            codesHtml += `<span class="code-item">${escapeHtml(p.sku)}<span class="code-lbl"> :מק"ט</span></span>`;
+        }
+        if (p.mpn) {
+            codesHtml += `<span class="code-item">${escapeHtml(p.mpn)}<span class="code-lbl"> :יצרן</span></span>`;
+        }
+
+        // Pricing column
+        let priceHtml = '';
+        if (p.reg !== null && p.reg !== undefined) {
+            priceHtml += `<div class="reg-price-wrap"><span class="reg-label">מקורי</span><span class="reg-price">${formatILS(p.reg)}</span></div>`;
+        } else {
+            priceHtml += `<div class="reg-price-wrap"><span class="reg-price eol">${escapeHtml(p.stock || 'ללא מחיר')}</span></div>`;
+        }
+
+        if (p.regSale !== null && p.regSale !== undefined) {
+            priceHtml += `<div class="regular-sale-line">${escapeHtml(p.regSaleLbl)}: ${formatILS(p.regSale)}</div>`;
+        }
+
+        if (p.promo !== null && p.promo !== undefined) {
+            const activeBadge = p.active
+                ? `<span class="active-badge"><span class="active-dot"></span>מבצע תקף היום</span>`
+                : '';
+            const datesHtml = p.dates ? `<div class="promo-dates">תוקף: ${escapeHtml(p.dates)}</div>` : '';
+            priceHtml += `
+                <div class="promo-block">
+                    <div class="promo-line">
+                        ${activeBadge}
+                        <span>${escapeHtml(p.promoLbl)}: <span class="promo-price-num">${formatILS(p.promo)}</span></span>
+                    </div>
+                    ${datesHtml}
+                </div>
+            `;
+        }
+
+        li.innerHTML = `
+            <div class="info-col">
+                <div class="tags-row">${tagsHtml}</div>
+                <div class="product-name">${escapeHtml(p.name)}</div>
+                <div class="codes-row">${codesHtml}</div>
+            </div>
+            <div class="price-col">
+                ${priceHtml}
+            </div>
+        `;
+        frag.appendChild(li);
+    }
+
+    listEl.innerHTML = '';
+    listEl.appendChild(frag);
+}
+
+// Search input handlers
+const searchInput = document.getElementById('searchInput');
+const clearBtn = document.getElementById('clearBtn');
+searchInput.addEventListener('input', renderList);
+clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    renderList();
+    searchInput.focus();
+});
+
+// --- Barcode Camera Scanner ---
+let html5QrCode = null;
+let scannerRunning = false;
+
+const scannerModal = document.getElementById('scannerModal');
+const scannerErr = document.getElementById('scannerErr');
+const scannerMsg = document.getElementById('scannerMsg');
+
+function playBeep() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 1200;
+        gain.gain.value = 0.12;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        setTimeout(() => { osc.stop(); ctx.close(); }, 110);
+    } catch (e) {}
+}
+
+async function stopScanner() {
+    scannerModal.classList.remove('open');
+    if (html5QrCode && scannerRunning) {
+        try {
+            await html5QrCode.stop();
+        } catch (e) {}
+        scannerRunning = false;
+    }
+    if (html5QrCode) {
+        try { html5QrCode.clear(); } catch (e) {}
+    }
+}
+
+async function startScanner() {
+    scannerErr.style.display = 'none';
+    scannerErr.textContent = '';
+    scannerMsg.style.display = 'block';
+    scannerModal.classList.add('open');
+
+    if (!window.isSecureContext) {
+        scannerErr.textContent = 'סריקת מצלמה דורשת חיבור מאובטח (HTTPS). העלה את הדף ל-GitHub Pages ונסה משם.';
+        scannerErr.style.display = 'block';
+        return;
+    }
+    if (typeof Html5Qrcode === 'undefined') {
+        scannerErr.textContent = 'ספריית הסורק לא נטענה (נדרש חיבור אינטרנט). ניתן להקליד את הברקוד ידנית בשורת החיפוש.';
+        scannerErr.style.display = 'block';
+        return;
+    }
+
+    try {
+        html5QrCode = new Html5Qrcode('reader');
+        const formats = [
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39
+        ];
+        await html5QrCode.start(
+            { facingMode: 'environment' },
+            {
+                fps: 12,
+                qrbox: { width: 270, height: 130 },
+                formatsToSupport: formats,
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+            },
+            async (decodedText) => {
+                if (!scannerRunning) return;
+                playBeep();
+                if (navigator.vibrate) navigator.vibrate(80);
+                await stopScanner();
+                activeFilter = 'ALL';
+                buildFilterChips();
+                searchInput.value = decodedText.trim();
+                renderList();
+            },
+            () => {}
+        );
+        scannerRunning = true;
+    } catch (err) {
+        scannerErr.textContent = 'לא ניתן להפעיל את המצלמה. ודא שאישרת גישה למצלמה בדפדפן ושאין אפליקציה אחרת שמשתמשת בה.';
+        scannerErr.style.display = 'block';
+        scannerMsg.style.display = 'none';
+    }
+}
+
+document.getElementById('scanBtn').addEventListener('click', startScanner);
+document.getElementById('closeModalBtn').addEventListener('click', stopScanner);
+scannerModal.addEventListener('click', (e) => {
+    if (e.target === scannerModal) stopScanner();
+});
+
+// Init
+buildFilterChips();
+renderList();
 </script>
 </body>
 </html>
